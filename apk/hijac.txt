@@ -1,5 +1,6 @@
 
 
+
 adb shell settings put secure enabled_accessibility_services com.baronkiko.launcherhijack/com.baronkiko.launcherhijack.AccServ
 
 
@@ -15,3 +16,23 @@ restore
 
 settings put secure accessibility_enabled 0
 settings delete secure enabled_accessibility_services 
+
+
+
+New hack:
+
+Edit: before doing this first uninstall LauncherHijack if you have it still installed.
+
+First install the cloned LauncherHijack.apk
+
+Then install the app-debug.apk
+(don't pay attention to its UI if it shows, it's just a template, the important part is that when it opens it configures the accessibility variables as needed)
+
+Then grant it the required permission by running:
+
+adb shell pm grant com.example.settest.settingstest android.permission.WRITE_SECURE_SETTINGS
+
+Then open the application (SettingsTest), after you do that, LauncherHijack should open automatically.
+(if it doesn't and it still complains when you open it then something did not work as intended)
+
+After you're done you can uninstall SettingsTest.
