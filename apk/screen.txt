@@ -51,6 +51,8 @@ reboot
 
 adb shell settings get secure sleep_timeout
 
+130.0sp in settings
+
 ------------------------------------------------------------------------------------------------------------
 
 Analog Clock
