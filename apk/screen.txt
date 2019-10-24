@@ -4,13 +4,13 @@ adb shell settings get secure screensaver_components
 This will output:
 [PACKAGE_NAME]/[SERVICE_NAME]
 
-If you don’t have an Android phone or tablet, you can use the aapt utility from the Android SDK to view all services of an APK file by running the command:
+If you donâ€™t have an Android phone or tablet, you can use the aapt utility from the Android SDK to view all services of an APK file by running the command:
 aapt dump xmltree [PATH-TO-APK] AndroidManifest.xml
 aapt dump xmltree [PATH-TO-APK] AndroidManifest.xml > [PATH-TO-TXT]AndroidManifest.txt
 
 android.permission.BIND_DREAM_SERVICE
 
-The services of the APK will be listed under the E: service sections, next to the labels A: android:name. If there are multiple services, you’ll have to try each one to determine which is the Daydream service.
+The services of the APK will be listed under the E: service sections, next to the labels A: android:name. If there are multiple services, youâ€™ll have to try each one to determine which is the Daydream service.
 Guide
 
     Sideload the screensaver APK onto your Fire TV or Fire TV Stick. The one used in this guide is Aerial Dream, which can be downloaded here.
@@ -19,13 +19,15 @@ Guide
     Set the new screensaver by running the command:
     settings put secure screensaver_components [PACKAGE_NAME]/[SERVICE_NAME]
 
-    Be sure to replace [PACKAGE_NAME]/[SERVICE_NAME] with the correct names from the APK you’re using. See the section above for determining these names. For example, the command for the Aerial Dream screensaver is:
+    Be sure to replace [PACKAGE_NAME]/[SERVICE_NAME] with the correct names from the APK youâ€™re using. See the section above for determining these names. For example, the command for the Aerial Dream screensaver is:
     settings put secure screensaver_components com.codingbuffalo.aerialdream/com.codingbuffalo.aerialdream.AerialDream
     (OPTIONAL) Verify that the screensaver was set by running the command:
     settings get secure screensaver_components
 
     You should see the package name and service name, that you just entered in the previous step, printed out.
-    That’s it. Your new screensaver is set. If you’d like to change your screensaver timer settings, see this guide and this guide.
+    Thatâ€™s it. Your new screensaver is set. If youâ€™d like to change your screensaver timer settings, see this guide and this guide.
+
+-------------------------------------------------------------------------------------------------------------------------
 
 Restore Default Screensaver
 
@@ -33,7 +35,7 @@ Restore Default Screensaver
     Enter ADB shell by running the command: adb shell
     Restore the default screensaver by running the command:
     settings put secure screensaver_components com.amazon.bueller.photos/.daydream.ScreenSaverService
-
+-------------------------------------------------------------------------------------------------------------------------
 
 Deskclock
 
@@ -43,6 +45,14 @@ settings put secure screensaver_components com.wookee.deskclock/com.wookee.deskc
 
 settings get secure screensaver_components
 
+adb shell settings put secure sleep_timeout 2147460000
+
+reboot
+
+adb shell settings get secure sleep_timeout
+
+------------------------------------------------------------------------------------------------------------
+
 Analog Clock
 
 adb shell
@@ -51,6 +61,13 @@ settings put secure screensaver_components com.wooks.screensaver.numanalogscreen
 
 settings get secure screensaver_components
 
+adb shell settings put secure sleep_timeout 2147460000
+
+reboot
+
+adb shell settings get secure sleep_timeout
+
+------------------------------------------------------------------------------------------------------------------------
 
 Screensaver timeout
 
@@ -60,7 +77,7 @@ adb shell settings put system screen_off_timeout 300000
 
 reboot
 
-sleep timeout
+Sleep timeout MAIN TO SETUP
 
 adb shell settings put secure sleep_timeout 2147460000
 
