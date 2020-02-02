@@ -35,6 +35,11 @@ Restore Default Screensaver
     Enter ADB shell by running the command: adb shell
     Restore the default screensaver by running the command:
     settings put secure screensaver_components com.amazon.bueller.photos/.daydream.ScreenSaverService
+    
+    New Update
+    
+    settings get secure screensaver_components com.amazon.ftv.screensaver/.app.services.ScreensaverService
+    
 -------------------------------------------------------------------------------------------------------------------------
 
 Deskclock
