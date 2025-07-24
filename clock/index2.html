@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Time & Date Display with Analog Clock</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: black;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      flex-direction: column;
+      font-size: 4rem;
+      opacity: 1;
+      transition: opacity 3s ease-in-out;
+    }
+
+    /* Make canvas larger for better resolution */
+    #analogClock {
+      width: 200px;
+      height: 200px;
+      display: block;
+    }
+
+    #time {
+      font-size: 7rem;
+      color: grey;
+      display: flex;
+      align-items: baseline;
+    }
+
+    #time span {
+      display: inline-block;
+    }
+
+    /* Style for colon between hours and minutes */
+    #separator-hm {
+      font-size: 1em; /* same size as text */
+    }
+
+    /* Style for colon between minutes and seconds */
+    #separator-ms {
+      font-size: 0.5em; /* smaller size */
+    }
+
+    #seconds {
+      font-size: 0.7em;
+    }
+
+    #ampm {
+      font-size: 0.5em;
+      margin-left: 0.2em;
+      /* Keep AM/PM uppercase, so no text-transform here */
+    }
+
+    #date {
+      font-size: 2rem;
+      color: grey;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="analogClock" width="300" height="300"></canvas>
+  
+  <div id="time">
+    <span id="hours">Loading</span>
+    <span id="separator-hm">:</span>
+    <span id="minutes">Loading</span>
+    <span id="separator-ms">:</span>
+    <span id="seconds">Loading</span>
+    <span id="ampm">AM</span>
+  </div>
+  <div id="date">Loading...</div>
+
+  <script>
+    const body = document.body;
+    let fadeInitiated = false;
+
+    // Fade functions
+    function fadeOut() {
+      return new Promise((resolve) => {
+        body.style.transition = 'opacity 3s ease-in-out';
+        body.style.opacity = 0;
+        setTimeout(resolve, 3000);
+      });
+    }
+
+    function fadeIn() {
+      return new Promise((resolve) => {
+        body.style.transition = 'opacity 3s ease-in-out';
+        body.style.opacity = 1;
+        setTimeout(resolve, 3000);
+      });
+    }
+
+    async function handleFadeCycle() {
+      await fadeOut();
+      updateClock();
+      await fadeIn();
+    }
+
+    const canvas = document.getElementById('analogClock');
+    const ctx = canvas.getContext('2d');
+    const size = 300; // size of the canvas
+    const radius = size / 2 * 0.99; // slightly smaller for padding
+
+    function drawClock() {
+      ctx.clearRect(0, 0, size, size);
+      const now = new Date();
+
+      // Draw tick marks
+      for (let i = 0; i < 60; i++) {
+        if (i % 5 !== 0) continue; // every 5 minutes
+
+        const angle = (i * Math.PI) / 30;
+        let innerRadius = radius - 25;
+        let outerRadius = radius - 9;
+
+        if (i % 15 === 0) {
+          innerRadius = radius - 30; // longer inward for quarter hours
+        }
+
+        ctx.lineWidth = i % 15 === 0 ? 5 : 3;
+        ctx.strokeStyle = 'grey';
+
+        ctx.beginPath();
+        ctx.moveTo(
+          size/2 + Math.cos(angle - Math.PI/2) * innerRadius,
+          size/2 + Math.sin(angle - Math.PI/2) * innerRadius
+        );
+        ctx.lineTo(
+          size/2 + Math.cos(angle - Math.PI/2) * outerRadius,
+          size/2 + Math.sin(angle - Math.PI/2) * outerRadius
+        );
+        ctx.stroke();
+      }
+
+      // Draw minute tick marks
+      for (let i = 0; i < 60; i++) {
+        if (i % 5 === 0) continue;
+        const angle = (i * Math.PI) / 30;
+        const innerRadius = radius - 20;
+        const outerRadius = radius - 8;
+
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'grey';
+
+        ctx.beginPath();
+        ctx.moveTo(
+          size/2 + Math.cos(angle - Math.PI/2) * innerRadius,
+          size/2 + Math.sin(angle - Math.PI/2) * innerRadius
+        );
+        ctx.lineTo(
+          size/2 + Math.cos(angle - Math.PI/2) * outerRadius,
+          size/2 + Math.sin(angle - Math.PI/2) * outerRadius
+        );
+        ctx.stroke();
+      }
+
+      // Draw hour numbers 1-12
+      ctx.font = '25px Arial';
+      ctx.fillStyle = 'grey';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      for (let num = 1; num <= 12; num++) {
+        const angle = (num * Math.PI) / 6;
+        const numRadius = radius - 50;
+        const x = size/2 + Math.cos(angle - Math.PI/2) * numRadius;
+        const y = size/2 + Math.sin(angle - Math.PI/2) * numRadius;
+        ctx.fillText(num.toString(), x, y);
+      }
+
+      // Calculate hand angles
+      const seconds = now.getSeconds();
+      const minutes = now.getMinutes();
+      const hours = now.getHours();
+
+      const secondAngle = (seconds * Math.PI) / 30;
+      const minuteAngle = (minutes * Math.PI) / 30 + (secondAngle / 60);
+      const hourAngle = ((hours % 12) + minutes / 60) * (Math.PI / 6);
+
+      // Draw hour hand
+      ctx.lineWidth = 9;
+      ctx.strokeStyle = 'grey';
+      ctx.beginPath();
+      ctx.moveTo(size/2, size/2);
+      ctx.lineTo(
+        size/2 + Math.cos(hourAngle - Math.PI/2) * (radius - 80),
+        size/2 + Math.sin(hourAngle - Math.PI/2) * (radius - 80)
+      );
+      ctx.stroke();
+
+      // Draw minute hand
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(size/2, size/2);
+      ctx.lineTo(
+        size/2 + Math.cos(minuteAngle - Math.PI/2) * (radius - 60),
+        size/2 + Math.sin(minuteAngle - Math.PI/2) * (radius - 60)
+      );
+      ctx.stroke();
+
+      // Draw second hand
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = 'red';
+      ctx.beginPath();
+      ctx.moveTo(size/2, size/2);
+      ctx.lineTo(
+        size/2 + Math.cos(secondAngle - Math.PI/2) * (radius - 40),
+        size/2 + Math.sin(secondAngle - Math.PI/2) * (radius - 40)
+      );
+      ctx.stroke();
+    }
+
+    function updateClock() {
+      const now = new Date();
+
+      // Update digital clock
+      let hours = now.getHours();
+      const minutes = now.getMinutes();
+      const seconds = now.getSeconds();
+      const ampm = hours >= 12 ? 'PM' : 'AM'; // uppercase
+
+      hours = hours % 12 || 12;
+
+      document.getElementById('hours').textContent = hours;
+      document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+      document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+      document.getElementById('ampm').textContent = ampm;
+
+      // Format date
+      const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      const months = [
+        "January", "February", "March", "April", "May", "June", "July",
+        "August", "September", "October", "November", "December"
+      ];
+      const dayName = days[now.getDay()];
+      const day = now.getDate();
+      const month = months[now.getMonth()];
+      const year = now.getFullYear();
+
+      function getOrdinal(n) {
+        if (n > 3 && n < 21) return 'th';
+        switch (n % 10) {
+          case 1: return "st";
+          case 2: return "nd";
+          case 3: return "rd";
+          default: return "th";
+        }
+      }
+
+      const dateString = `${dayName} ${day}${getOrdinal(day)} ${month} ${year}`;
+      document.getElementById('date').textContent = dateString;
+
+      drawClock();
+
+      // Fade cycle at 57 seconds
+      const secondsCount = now.getSeconds();
+      if (secondsCount === 57 && !fadeInitiated) {
+        fadeInitiated = true;
+        handleFadeCycle().then(() => {
+          fadeInitiated = false;
+        });
+      }
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock(); // initial call
+  </script>
+</body>
+</html>
