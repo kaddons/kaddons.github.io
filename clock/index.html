@@ -22,12 +22,13 @@
 
     /* Style for the analog clock canvas */
     #analogClock {
-      width: 300px;
-      height: 300px;
+      width: 200px;
+      height: 200px;
     }
 
     #time {
       font-size: 7rem;
+      color: silver;
       display: flex;
       align-items: baseline;
     }
@@ -47,6 +48,7 @@
 
     #date {
       font-size: 2rem;
+      color: silver;
     }
   </style>
 </head>
@@ -98,7 +100,7 @@
       // Draw clock face outline
       ctx.beginPath();
       ctx.arc(radius, radius, radius - 10, 0, 2 * Math.PI);
-      ctx.strokeStyle = 'white';
+      ctx.strokeStyle = 'silver';
       ctx.lineWidth = 4;
       ctx.stroke();
 
@@ -117,7 +119,7 @@
         }
 
         ctx.lineWidth = i % 15 === 0 ? 5 : 3;
-        ctx.strokeStyle = 'white';
+        ctx.strokeStyle = 'silver';
 
         ctx.beginPath();
         ctx.moveTo(
@@ -141,7 +143,7 @@
         const outerRadius = radius - 12; // shorter outward
 
         ctx.lineWidth = 1; // thinner
-        ctx.strokeStyle = 'white';
+        ctx.strokeStyle = 'silver';
 
         ctx.beginPath();
         ctx.moveTo(
@@ -166,7 +168,7 @@
 
       // Draw hour hand with thicker line
       ctx.lineWidth = 6;
-      ctx.strokeStyle = 'white';
+      ctx.strokeStyle = 'silver';
       ctx.beginPath();
       ctx.moveTo(radius, radius);
       ctx.lineTo(
