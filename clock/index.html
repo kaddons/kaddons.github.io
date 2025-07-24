@@ -28,7 +28,7 @@
 
     #time {
       font-size: 7rem;
-      color: silver;
+      color: grey;
       display: flex;
       align-items: baseline;
     }
@@ -37,18 +37,31 @@
       display: inline-block;
     }
 
-    #seconds {
-      font-size: 0.7em; /* Smaller size for Seconds */
+    /* Keep the colon between hours and minutes normal size */
+    #time .normal-colon {
+      font-size: 1em; /* normal size */
     }
 
+    /* Smaller colon between minutes and seconds */
+    #time .small-colon {
+      font-size: 0.5em; /* smaller size */
+      margin: 0 0.2em; /* optional spacing */
+    }
+
+    /* Smaller size for seconds */
+    #seconds {
+      font-size: 0.7em; /* smaller for seconds */
+    }
+
+    /* Smaller size for AM/PM */
     #ampm {
-      font-size: 0.5em; /* Smaller size for AM/PM */
-      margin-left: 0.2em; /* Slight space between time and AM/PM */
+      font-size: 0.5em;
+      margin-left: 0.2em;
     }
 
     #date {
       font-size: 2rem;
-      color: silver;
+      color: grey;
     }
   </style>
 </head>
@@ -57,7 +70,11 @@
   <canvas id="analogClock" width="200" height="200"></canvas>
   
   <div id="time">
-    <span id="hours">Loading</span>:<span id="minutes">Loading</span>:<span id="seconds">Loading</span>
+    <span id="hours">Loading</span>
+    <span class="normal-colon">:</span>
+    <span id="minutes">Loading</span>
+    <span class="small-colon">:</span>
+    <span id="seconds">Loading</span>
     <span id="ampm">AM</span>
   </div>
   <div id="date">Loading...</div>
@@ -100,7 +117,7 @@
       // Draw clock face outline
       ctx.beginPath();
       ctx.arc(radius, radius, radius - 10, 0, 2 * Math.PI);
-      ctx.strokeStyle = 'silver';
+      ctx.strokeStyle = 'grey';
       ctx.lineWidth = 4;
       ctx.stroke();
 
@@ -119,7 +136,7 @@
         }
 
         ctx.lineWidth = i % 15 === 0 ? 5 : 3;
-        ctx.strokeStyle = 'silver';
+        ctx.strokeStyle = 'grey';
 
         ctx.beginPath();
         ctx.moveTo(
@@ -143,7 +160,7 @@
         const outerRadius = radius - 12; // shorter outward
 
         ctx.lineWidth = 1; // thinner
-        ctx.strokeStyle = 'silver';
+        ctx.strokeStyle = 'grey';
 
         ctx.beginPath();
         ctx.moveTo(
@@ -168,7 +185,7 @@
 
       // Draw hour hand with thicker line
       ctx.lineWidth = 6;
-      ctx.strokeStyle = 'silver';
+      ctx.strokeStyle = 'grey';
       ctx.beginPath();
       ctx.moveTo(radius, radius);
       ctx.lineTo(
@@ -235,7 +252,7 @@
         }
       }
 
-      const dateString = `${dayName}, ${day}${getOrdinal(day)} ${month} ${year}`;
+      const dateString = `${dayName} ${day}${getOrdinal(day)} ${month} ${year}`;
       document.getElementById('date').textContent = dateString;
 
       // Draw the clock
