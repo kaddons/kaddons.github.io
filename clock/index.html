@@ -28,7 +28,7 @@
 
     #time {
       font-size: 7rem;
-      color: grey;
+      color: gray;
       display: flex;
       align-items: baseline;
     }
@@ -61,7 +61,7 @@
 
     #date {
       font-size: 2rem;
-      color: grey;
+      color: gray;
     }
   </style>
 </head>
@@ -117,7 +117,7 @@
       // Draw clock face outline
       ctx.beginPath();
       ctx.arc(radius, radius, radius - 10, 0, 2 * Math.PI);
-      ctx.strokeStyle = 'grey';
+      ctx.strokeStyle = 'gray';
       ctx.lineWidth = 4;
       ctx.stroke();
 
@@ -136,7 +136,7 @@
         }
 
         ctx.lineWidth = i % 15 === 0 ? 5 : 3;
-        ctx.strokeStyle = 'grey';
+        ctx.strokeStyle = 'gray';
 
         ctx.beginPath();
         ctx.moveTo(
@@ -160,7 +160,7 @@
         const outerRadius = radius - 12; // shorter outward
 
         ctx.lineWidth = 1; // thinner
-        ctx.strokeStyle = 'grey';
+        ctx.strokeStyle = 'gray';
 
         ctx.beginPath();
         ctx.moveTo(
@@ -185,7 +185,7 @@
 
       // Draw hour hand with thicker line
       ctx.lineWidth = 6;
-      ctx.strokeStyle = 'grey';
+      ctx.strokeStyle = 'gray';
       ctx.beginPath();
       ctx.moveTo(radius, radius);
       ctx.lineTo(
