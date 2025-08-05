@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Time & Proportional Columns Weather</title>
+<title>Time & Date & Weather Display with Analog Clock</title>
 <style>
   /* Body padding to prevent scroll behind footer if needed */
   body {
@@ -26,7 +26,7 @@
     justify-content: center;
   }
 
-  /* Bigger analog clock */
+  /* analog clock */
   #analogClock {
     width: 150px;
     height: 150px;
@@ -64,7 +64,7 @@
     text-align: center;
   }
 
-  /* Weather container: now with proportioned columns */
+  /* Weather container*/
   #weather-container {
     width: 100%;
     padding: 10px 20px;
@@ -77,27 +77,17 @@
     gap: 10px;
   }
 
-  /* Columns: set width to 30% and 70% respectively */
-  #column1 {
-    flex: 0 0 30%;
+  #column {
+    flex: 0 0 100%;
     display: flex;
     flex-direction: column;
+  }
+
+  /* Center the location info inside column */
+  #location-info {
+    margin-top: 30px;
     align-items: center; /* center horizontally */
     text-align: center;
-  }
-
-  #column2 {
-    flex: 0 0 70%;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* Center the location info inside column1 */
-  #location-info {
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* center horizontally in this column */
-    width: 100%;
   }
   #location {
     font-weight: bold;
@@ -107,7 +97,7 @@
     font-size: 0.9em;
   }
 
-  /* Forecast days scroll horizontally in column2 */
+  /* Forecast days scroll horizontally in column */
   #forecast-container {
     display: flex;
     gap: 10px;
@@ -157,25 +147,19 @@
     <div id="date">Loading...</div>
   </div>
 
-  <!-- Weather with proportional columns: 30% and 70% -->
+  <!-- Weather-->
   <div id="weather-container">
-    <!-- 30% column: location + month/year -->
-    <div id="column1" class="column">
-      <div id="location-info">
-        <div id="location">Loading...</div>
-        <div id="month-year"></div>
-      </div>
-    </div>
-    <!-- 70% column: forecast days -->
-    <div id="column2" class="column">
+    <div id="column" class="column">
       <div id="forecast-container">
+        <div id="location-info">
+          <div id="location">Loading...</div>
+          <div id="month-year"></div>
+	</div>
         <div class="day" id="day1"></div>
         <div class="day" id="day2"></div>
         <div class="day" id="day3"></div>
         <div class="day" id="day4"></div>
         <div class="day" id="day5"></div>
-        <div class="day" id="day6"></div>
-        <!-- <div class="day" id="day7"></div> -->
       </div>
     </div>
   </div>
@@ -360,7 +344,7 @@
         forecastByDate[key].entries.push(entry);
       });
 
-      const dates=Object.keys(forecastByDate).slice(0,7);
+      const dates=Object.keys(forecastByDate).slice(0,5);
       for(let i=0;i<7;i++){
         const dateKey=dates[i];
         if(!dateKey){
