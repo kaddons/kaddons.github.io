@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Time & Date & Weather Display with Analog Clock</title>
 <style>
-  /* Body padding to prevent scroll behind footer if needed */
   body {
     margin: 0;
     padding-bottom: 160px; /* space for footer if fixed, but here just for spacing */
@@ -28,8 +27,8 @@
 
   /* analog clock */
   #analogClock {
-    width: 150px;
-    height: 150px;
+    width: 250px;
+    height: 250px;
   }
 
   /* Digital clock styles */
@@ -37,7 +36,7 @@
     font-size: clamp(4rem, 10vw, 8rem);
     display: flex;
     align-items: baseline;
-    margin-top: 1vh;
+    margin-top: -9vh;
   }
   #time span {
     display: inline-block;
@@ -189,91 +188,115 @@
     await fadeIn();
   }
 
-  const canvas = document.getElementById('analogClock');
-  const ctx = canvas.getContext('2d');
+    const canvas = document.getElementById('analogClock');
+    const ctx = canvas.getContext('2d');
+    const radius = 100; // half of width/height
 
-  function drawClock() {
-    const radius = 125;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.beginPath();
-    ctx.arc(radius, radius, radius - 10, 0, 2 * Math.PI);
-    ctx.strokeStyle = 'dimgray';
-    ctx.lineWidth = 4;
-    ctx.stroke();
+    function drawClock() {
+      const now = new Date();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    for (let i=0; i<60; i++) {
-      if (i%5!==0) continue;
-      const angle = (i * Math.PI) / 30;
-      let innerRadius = radius - 25;
-      let outerRadius = radius - 9;
-      if (i % 15 ===0) innerRadius=radius-30;
-      ctx.lineWidth= i%15===0 ? 5 : 3;
-      ctx.strokeStyle='dimgray';
+      // Draw clock face outline
       ctx.beginPath();
-      ctx.moveTo(
-        radius + Math.cos(angle - Math.PI/2) * innerRadius,
-        radius + Math.sin(angle - Math.PI/2) * innerRadius
-      );
+      ctx.arc(radius, radius, radius - 10, 0, 2 * Math.PI);
+      ctx.strokeStyle = 'dimgray';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      // Draw 5-minute marks, with 15-minute marks longer and thicker
+      for (let i = 0; i < 60; i++) {
+        if (i % 5 !== 0) continue; // only every 5 minutes
+
+        const angle = (i * Math.PI) / 30;
+
+        let innerRadius = radius - 25;
+        let outerRadius = radius - 9;
+
+        if (i % 15 === 0) {
+          innerRadius = radius - 30; // longer inward
+          outerRadius = radius - 9;  // longer outward
+        }
+
+        ctx.lineWidth = i % 15 === 0 ? 5 : 3;
+        ctx.strokeStyle = 'dimgray';
+
+        ctx.beginPath();
+        ctx.moveTo(
+          radius + Math.cos(angle - Math.PI / 2) * innerRadius,
+          radius + Math.sin(angle - Math.PI / 2) * innerRadius
+        );
+        ctx.lineTo(
+          radius + Math.cos(angle - Math.PI / 2) * outerRadius,
+          radius + Math.sin(angle - Math.PI / 2) * outerRadius
+        );
+        ctx.stroke();
+      }
+
+      // Draw minute tick marks (smaller than 5-minute marks)
+      for (let i = 0; i < 60; i++) {
+        if (i % 5 === 0) continue; // skip 5-minute marks
+
+        const angle = (i * Math.PI) / 30;
+
+        const innerRadius = radius - 20; // slightly inside the 5-min marks inner radius
+        const outerRadius = radius - 12; // shorter outward
+
+        ctx.lineWidth = 1; // thinner
+        ctx.strokeStyle = 'dimgray';
+
+        ctx.beginPath();
+        ctx.moveTo(
+          radius + Math.cos(angle - Math.PI / 2) * innerRadius,
+          radius + Math.sin(angle - Math.PI / 2) * innerRadius
+        );
+        ctx.lineTo(
+          radius + Math.cos(angle - Math.PI / 2) * outerRadius,
+          radius + Math.sin(angle - Math.PI / 2) * outerRadius
+        );
+        ctx.stroke();
+      }
+
+      // Calculate angles for hands
+      const seconds = now.getSeconds();
+      const minutes = now.getMinutes();
+      const hours = now.getHours();
+
+      const secondAngle = (seconds * Math.PI) / 30;
+      const minuteAngle = (minutes * Math.PI) / 30 + (secondAngle / 60);
+      const hourAngle = ((hours % 12) + minutes / 60) * (Math.PI / 6);
+
+      // Draw hour hand with thicker line
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = 'dimgray';
+      ctx.beginPath();
+      ctx.moveTo(radius, radius);
       ctx.lineTo(
-        radius + Math.cos(angle - Math.PI/2) * outerRadius,
-        radius + Math.sin(angle - Math.PI/2) * outerRadius
+        radius + Math.cos(hourAngle - Math.PI / 2) * (radius - 60),
+        radius + Math.sin(hourAngle - Math.PI / 2) * (radius - 60)
+      );
+      ctx.stroke();
+
+      // Draw minute hand
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(radius, radius);
+      ctx.lineTo(
+        radius + Math.cos(minuteAngle - Math.PI / 2) * (radius - 40),
+        radius + Math.sin(minuteAngle - Math.PI / 2) * (radius - 40)
+      );
+      ctx.stroke();
+
+      // Draw second hand
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = 'red';
+      ctx.beginPath();
+      ctx.moveTo(radius, radius);
+      ctx.lineTo(
+        radius + Math.cos(secondAngle - Math.PI / 2) * (radius - 20),
+        radius + Math.sin(secondAngle - Math.PI / 2) * (radius - 20)
       );
       ctx.stroke();
     }
-    for (let i=0; i<60; i++) {
-      if (i%5===0) continue;
-      const angle = (i * Math.PI) / 30;
-      ctx.lineWidth=1;
-      ctx.strokeStyle='dimgray';
-      ctx.beginPath();
-      ctx.moveTo(
-        radius + Math.cos(angle - Math.PI/2) * (radius - 20),
-        radius + Math.sin(angle - Math.PI/2) * (radius - 20)
-      );
-      ctx.lineTo(
-        radius + Math.cos(angle - Math.PI/2) * (radius - 12),
-        radius + Math.sin(angle - Math.PI/2) * (radius - 12)
-      );
-      ctx.stroke();
-    }
-    const now=new Date();
-    const seconds=now.getSeconds();
-    const minutes=now.getMinutes();
-    const hours=now.getHours();
-
-    const secondAngle= (seconds * Math.PI)/30;
-    const minuteAngle= (minutes * Math.PI)/30 + (secondAngle/60);
-    const hourAngle= ((hours%12)+minutes/60)*(Math.PI/6);
-
-    ctx.lineWidth=6;
-    ctx.strokeStyle='dimgray';
-    ctx.beginPath();
-    ctx.moveTo(radius, radius);
-    ctx.lineTo(
-      radius + Math.cos(hourAngle - Math.PI/2) * (radius - 60),
-      radius + Math.sin(hourAngle - Math.PI/2) * (radius - 60)
-    );
-    ctx.stroke();
-
-    ctx.lineWidth=3;
-    ctx.beginPath();
-    ctx.moveTo(radius, radius);
-    ctx.lineTo(
-      radius + Math.cos(minuteAngle - Math.PI/2) * (radius - 40),
-      radius + Math.sin(minuteAngle - Math.PI/2) * (radius - 40)
-    );
-    ctx.stroke();
-
-    ctx.lineWidth=2;
-    ctx.strokeStyle='red';
-    ctx.beginPath();
-    ctx.moveTo(radius, radius);
-    ctx.lineTo(
-      radius + Math.cos(secondAngle - Math.PI/2) * (radius - 20),
-      radius + Math.sin(secondAngle - Math.PI/2) * (radius - 20)
-    );
-    ctx.stroke();
-  }
 
   function updateClock() {
     const now=new Date();
