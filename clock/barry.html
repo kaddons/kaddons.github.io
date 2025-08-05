@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Time & Proportional Columns Weather</title>
+<style>
+  /* Body padding to prevent scroll behind footer if needed */
+  body {
+    margin: 0;
+    padding-bottom: 160px; /* space for footer if fixed, but here just for spacing */
+    background-color: black;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: dimgray;
+  }
+
+  /* Header: clock + date, centered */
+  #header {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Bigger analog clock */
+  #analogClock {
+    width: 150px;
+    height: 150px;
+  }
+
+  /* Digital clock styles */
+  #time {
+    font-size: clamp(4rem, 10vw, 8rem);
+    display: flex;
+    align-items: baseline;
+    margin-top: 1vh;
+  }
+  #time span {
+    display: inline-block;
+  }
+  #time .normal-colon {
+    font-size: 1em;
+  }
+  #time .small-colon {
+    font-size: 0.5em;
+    margin: 0 0.2em;
+  }
+  #seconds {
+    font-size: 0.7em;
+  }
+  #ampm {
+    font-size: 0.5em;
+    margin-left: 0.2em;
+  }
+
+  /* Date below clock */
+  #date {
+    font-size: clamp(1.2rem, 3vw, 2rem);
+    margin-top: 2vh;
+    text-align: center;
+  }
+
+  /* Weather container: now with proportioned columns */
+  #weather-container {
+    width: 100%;
+    padding: 10px 20px;
+    box-sizing: border-box;
+    background: #000;
+    display: flex;
+    flex-direction: row; /* two columns side by side */
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  /* Columns: set width to 30% and 70% respectively */
+  #column1 {
+    flex: 0 0 30%;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* center horizontally */
+    text-align: center;
+  }
+
+  #column2 {
+    flex: 0 0 70%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Center the location info inside column1 */
+  #location-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* center horizontally in this column */
+    width: 100%;
+  }
+  #location {
+    font-weight: bold;
+    font-size: 1.2em;
+  }
+  #month-year {
+    font-size: 0.9em;
+  }
+
+  /* Forecast days scroll horizontally in column2 */
+  #forecast-container {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    justify-content: center;
+  }
+  .day {
+    text-align: center;
+    min-width: 80px;
+  }
+  .icon {
+    width: 40px;
+    height: 40px;
+    display: block;
+    margin: 0 auto 5px auto;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+    border-radius: 4px;
+  }
+
+  /* Responsive adjustments */
+  @media(max-width: 768px){
+    #analogClock {
+      width: 200px;
+      height: 200px;
+    }
+    #weather-container {
+      flex-direction: column;
+    }
+    #forecast-container {
+      margin-top: 10px;
+    }
+  }
+</style>
+</head>
+<body>
+  <!-- Header: clock and date -->
+  <div id="header">
+    <canvas id="analogClock" width="250" height="250"></canvas>
+    <div id="time">
+      <span id="hours">Loading</span>
+      <span class="normal-colon">:</span>
+      <span id="minutes">Loading</span>
+      <span class="small-colon">:</span>
+      <span id="seconds">Loading</span>
+      <span id="ampm">AM</span>
+    </div>
+    <div id="date">Loading...</div>
+  </div>
+
+  <!-- Weather with proportional columns: 30% and 70% -->
+  <div id="weather-container">
+    <!-- 30% column: location + month/year -->
+    <div id="column1" class="column">
+      <div id="location-info">
+        <div id="location">Loading...</div>
+        <div id="month-year"></div>
+      </div>
+    </div>
+    <!-- 70% column: forecast days -->
+    <div id="column2" class="column">
+      <div id="forecast-container">
+        <div class="day" id="day1"></div>
+        <div class="day" id="day2"></div>
+        <div class="day" id="day3"></div>
+        <div class="day" id="day4"></div>
+        <div class="day" id="day5"></div>
+        <div class="day" id="day6"></div>
+        <!-- <div class="day" id="day7"></div> -->
+      </div>
+    </div>
+  </div>
+
+<script>
+  // === Clock functions and weather fetch (same as previous full code) ===
+  const body = document.body;
+  let fadeInitiated = false;
+
+  function fadeOut() {
+    return new Promise((resolve) => {
+      body.style.transition = 'opacity 3s ease-in-out';
+      body.style.opacity = 0;
+      setTimeout(resolve, 3000);
+    });
+  }
+  function fadeIn() {
+    return new Promise((resolve) => {
+      body.style.transition = 'opacity 3s ease-in-out';
+      body.style.opacity = 1;
+      setTimeout(resolve, 3000);
+    });
+  }
+  async function handleFadeCycle() {
+    await fadeOut();
+    updateClock();
+    await fadeIn();
+  }
+
+  const canvas = document.getElementById('analogClock');
+  const ctx = canvas.getContext('2d');
+
+  function drawClock() {
+    const radius = 125;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.beginPath();
+    ctx.arc(radius, radius, radius - 10, 0, 2 * Math.PI);
+    ctx.strokeStyle = 'dimgray';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    for (let i=0; i<60; i++) {
+      if (i%5!==0) continue;
+      const angle = (i * Math.PI) / 30;
+      let innerRadius = radius - 25;
+      let outerRadius = radius - 9;
+      if (i % 15 ===0) innerRadius=radius-30;
+      ctx.lineWidth= i%15===0 ? 5 : 3;
+      ctx.strokeStyle='dimgray';
+      ctx.beginPath();
+      ctx.moveTo(
+        radius + Math.cos(angle - Math.PI/2) * innerRadius,
+        radius + Math.sin(angle - Math.PI/2) * innerRadius
+      );
+      ctx.lineTo(
+        radius + Math.cos(angle - Math.PI/2) * outerRadius,
+        radius + Math.sin(angle - Math.PI/2) * outerRadius
+      );
+      ctx.stroke();
+    }
+    for (let i=0; i<60; i++) {
+      if (i%5===0) continue;
+      const angle = (i * Math.PI) / 30;
+      ctx.lineWidth=1;
+      ctx.strokeStyle='dimgray';
+      ctx.beginPath();
+      ctx.moveTo(
+        radius + Math.cos(angle - Math.PI/2) * (radius - 20),
+        radius + Math.sin(angle - Math.PI/2) * (radius - 20)
+      );
+      ctx.lineTo(
+        radius + Math.cos(angle - Math.PI/2) * (radius - 12),
+        radius + Math.sin(angle - Math.PI/2) * (radius - 12)
+      );
+      ctx.stroke();
+    }
+    const now=new Date();
+    const seconds=now.getSeconds();
+    const minutes=now.getMinutes();
+    const hours=now.getHours();
+
+    const secondAngle= (seconds * Math.PI)/30;
+    const minuteAngle= (minutes * Math.PI)/30 + (secondAngle/60);
+    const hourAngle= ((hours%12)+minutes/60)*(Math.PI/6);
+
+    ctx.lineWidth=6;
+    ctx.strokeStyle='dimgray';
+    ctx.beginPath();
+    ctx.moveTo(radius, radius);
+    ctx.lineTo(
+      radius + Math.cos(hourAngle - Math.PI/2) * (radius - 60),
+      radius + Math.sin(hourAngle - Math.PI/2) * (radius - 60)
+    );
+    ctx.stroke();
+
+    ctx.lineWidth=3;
+    ctx.beginPath();
+    ctx.moveTo(radius, radius);
+    ctx.lineTo(
+      radius + Math.cos(minuteAngle - Math.PI/2) * (radius - 40),
+      radius + Math.sin(minuteAngle - Math.PI/2) * (radius - 40)
+    );
+    ctx.stroke();
+
+    ctx.lineWidth=2;
+    ctx.strokeStyle='red';
+    ctx.beginPath();
+    ctx.moveTo(radius, radius);
+    ctx.lineTo(
+      radius + Math.cos(secondAngle - Math.PI/2) * (radius - 20),
+      radius + Math.sin(secondAngle - Math.PI/2) * (radius - 20)
+    );
+    ctx.stroke();
+  }
+
+  function updateClock() {
+    const now=new Date();
+    let hours=now.getHours();
+    const minutes=now.getMinutes();
+    const seconds=now.getSeconds();
+    const ampm=hours>=12?'PM':'AM';
+    hours=hours%12||12;
+
+    document.getElementById('hours').textContent=hours;
+    document.getElementById('minutes').textContent=String(minutes).padStart(2,'0');
+    document.getElementById('seconds').textContent=String(seconds).padStart(2,'0');
+    document.getElementById('ampm').textContent=ampm;
+
+    const days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+    const months=["January","February","March","April","May","June","July","August","September","October","November","December"];
+    const dayName=days[now.getDay()];
+    const day=now.getDate();
+    const month=months[now.getMonth()];
+    const year=now.getFullYear();
+
+    function getOrdinal(n){ if(n>3 && n<21) return 'th'; switch(n%10){ case 1: return 'st'; case 2: return 'nd'; case 3: return 'rd'; default: return 'th'; } }
+
+    const dateString=`${dayName} ${day}${getOrdinal(day)} ${month} ${year}`;
+    document.getElementById('date').textContent=dateString;
+
+    drawClock();
+
+    if (seconds===57 && !fadeInitiated) {
+      fadeInitiated=true;
+      handleFadeCycle().then(()=>{ fadeInitiated=false; });
+    }
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // === Weather fetch ===
+  const apiKey='47c1af6a7c3a2323766a8d053389d54e';
+  const lat=51.4066;
+  const lon=-3.2834;
+
+  function getIconUrl(iconCode) {
+    return `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+  }
+
+  async function fetchForecast() {
+    const url=`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
+    try {
+      const response=await fetch(url);
+      if (!response.ok) throw new Error('Network response not ok');
+      const data=await response.json();
+
+      document.getElementById('location').textContent='Barry, UK';
+
+      const now=new Date();
+      const optionsMonthYear={ year:'numeric', month:'long' };
+      document.getElementById('month-year').textContent=now.toLocaleDateString(undefined, optionsMonthYear);
+
+      // Group data by date
+      const forecastByDate={};
+      data.list.forEach(entry=>{
+        const dateObj=new Date(entry.dt*1000);
+        const options={weekday:'short'};
+        const dayName=dateObj.toLocaleDateString(undefined, options);
+        const dayNumber=dateObj.getDate();
+        const key=dateObj.toDateString();
+        if(!forecastByDate[key]) forecastByDate[key]={ dayName, dayNumber, entries:[] };
+        forecastByDate[key].entries.push(entry);
+      });
+
+      const dates=Object.keys(forecastByDate).slice(0,7);
+      for(let i=0;i<7;i++){
+        const dateKey=dates[i];
+        if(!dateKey){
+          document.getElementById(`day${i+1}`).innerHTML=`<div>No data</div>`;
+          continue;
+        }
+        const { dayName, dayNumber, entries }=forecastByDate[dateKey];
+        const temps=entries.map(e=>e.main.temp);
+        const avgTemp=Math.round(temps.reduce((a,b)=>a+b,0)/temps.length);
+        const midEntry=entries[Math.floor(entries.length/2)];
+        const iconCode=midEntry.weather[0].icon;
+        const description=midEntry.weather[0].description;
+
+        document.getElementById(`day${i+1}`).innerHTML=`
+          <div><strong>${dayNumber} ${dayName}</strong></div>
+          <img class="icon" src="${getIconUrl(iconCode)}" alt="${description}">
+          <div>${avgTemp}°C</div>
+        `;
+      }
+    } catch(e){
+      console.error('Error fetching weather:', e);
+    }
+  }
+  fetchForecast();
+  setInterval(fetchForecast, 10800000);
+</script>
+</body>
+</html>
