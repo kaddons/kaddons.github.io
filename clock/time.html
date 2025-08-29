@@ -3,22 +3,26 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Time & Date & Weather with Geolocation</title>
+<title>Time & Date & Weather Display with Analog Clock</title>
+<link type="image/png" sizes="16x16" rel="icon" href="https://img.icons8.com/?size=16&id=113106&format=png">
+<!-- Include Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 <style>
-  /* Your existing styles here (unchanged) */
   body {
-    margin: 0;
-    padding-bottom: 160px;
+    margin-top: 30px;
+    padding: 0;
+    height: 100vh;
     background-color: black;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: dimgray;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    overflow: hidden;
   }
 
   #header {
-    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -26,15 +30,15 @@
   }
 
   #analogClock {
-    width: 250px;
-    height: 250px;
+    width: 150px;
+    height: 150px;
   }
 
   #time {
-    font-size: clamp(4rem, 10vw, 8rem);
+    font-size: clamp(5rem, 10vw, 8rem);
     display: flex;
     align-items: baseline;
-    margin-top: -9vh;
+    margin-top: 1vh;
   }
   #time span {
     display: inline-block;
@@ -43,349 +47,429 @@
     font-size: 1em;
   }
   #time .small-colon {
-    font-size: 0.5em;
+    font-size: 0.4em;
     margin: 0 0.2em;
   }
   #seconds {
-    font-size: 0.7em;
+    font-size: 0.6em;
   }
   #ampm {
-    font-size: 0.5em;
+    font-size: 0.4em;
     margin-left: 0.2em;
   }
 
   #date {
-    font-size: clamp(1.2rem, 3vw, 2rem);
-    margin-top: 2vh;
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    margin-top: 1.5vh;
     text-align: center;
   }
 
-  #weather-container {
-    width: 100%;
-    padding: 10px 20px;
-    box-sizing: border-box;
-    background: #000;
+  #main-content {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
     align-items: flex-start;
-    gap: 10px;
+    justify-content: center;
+    width: 100%;
+    max-width: 1800px;
+    padding: 20px;
   }
 
-  #column {
-    flex: 0 0 100%;
+  #location-weather {
     display: flex;
     flex-direction: column;
-  }
-
-  #location-info {
-    margin-top: 30px;
     align-items: center;
+    margin-top: 60px;
+    margin-right: 30px;
     text-align: center;
   }
+
   #location {
     font-weight: bold;
-    font-size: 1.2em;
+    font-size: 1.0em;
   }
-  #month-year {
-    font-size: 0.9em;
+
+  #todays-weather {
+    font-size: 1.0em;
   }
 
   #forecast-container {
     display: flex;
-    gap: 10px;
-    overflow-x: auto;
-    justify-content: center;
-  }
-  .day {
-    text-align: center;
-    min-width: 80px;
-  }
-  .icon {
-    width: 40px;
-    height: 40px;
-    display: block;
-    margin: 0 auto 5px auto;
-    box-shadow: 2px 2px 8px rgba(0,0,0,0.8);
-    border-radius: 4px;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-top: 10px;
+    flex: 0; /* prevent growth/shrink */
   }
 
-  @media(max-width: 768px){
-    #analogClock {
-      width: 200px;
-      height: 200px;
-    }
-    #weather-container {
-      flex-direction: column;
-    }
-    #forecast-container {
-      margin-top: 10px;
+  .forecast-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    overflow-x: auto;
+    padding: 10px 0;
+    width: 100%;
+    white-space: nowrap;
+  }
+
+  .forecast-item {
+    min-width: 70px;
+    background: #111;
+    padding: 6px;
+    border-radius: 6px;
+    margin-right: 5px;
+    text-align: center;
+    font-size: 0.8em;
+    display: inline-block;
+  }
+
+  @media (min-width: 1920px) {
+    body {
+      justify-content: start;
     }
   }
 </style>
 </head>
 <body>
-  <!-- Header: clock + date -->
-  <div id="header">
-    <canvas id="analogClock" width="250" height="250"></canvas>
-    <div id="time">
-      <span id="hours">Loading</span>
-      <span class="normal-colon">:</span>
-      <span id="minutes">Loading</span>
-      <span class="small-colon">:</span>
-      <span id="seconds">Loading</span>
-      <span id="ampm">AM</span>
-    </div>
-    <div id="date">Loading...</div>
+<div id="header">
+  <canvas id="analogClock" width="200" height="200"></canvas>
+  <div id="time">
+    <span id="hours">Loading</span>
+    <span class="normal-colon">:</span>
+    <span id="minutes">Loading</span>
+    <span class="small-colon">:</span>
+    <span id="seconds">Loading</span>
+    <span id="ampm">AM</span>
   </div>
+  <div id="date">Loading...</div>
+</div>
 
-  <!-- Weather-->
-  <div id="weather-container">
-    <div id="column" class="column">
-      <div id="forecast-container">
-        <div id="location-info">
-          <div id="location">Loading...</div>
-          <div id="month-year"></div>
-        </div>
-        <div class="day" id="day1"></div>
-        <div class="day" id="day2"></div>
-        <div class="day" id="day3"></div>
-        <div class="day" id="day4"></div>
-        <div class="day" id="day5"></div>
-      </div>
-    </div>
+<div id="main-content">
+  <div id="location-weather">
+    <div id="location">Loading location...</div>
+    <div id="todays-weather">Local Weather</div>
   </div>
+  <div id="forecast-container">
+    <div id="hourly-forecast" class="forecast-row"></div>
+    <div id="weekly-forecast" class="forecast-row"></div>
+  </div>
+</div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // === clock functions and fade effects (unchanged) ===
-    const body = document.body;
-    let fadeInitiated = false;
+  // --- Clock functions (unchanged) ---
+  const body = document.body;
+  let fadeInitiated = false;
 
-    function fadeOut() {
-      return new Promise((resolve) => {
-        body.style.transition = 'opacity 3s ease-in-out';
-        body.style.opacity = 0;
-        setTimeout(resolve, 3000);
-      });
-    }
-    function fadeIn() {
-      return new Promise((resolve) => {
-        body.style.transition = 'opacity 3s ease-in-out';
-        body.style.opacity = 1;
-        setTimeout(resolve, 3000);
-      });
-    }
-    async function handleFadeCycle() {
-      await fadeOut();
-      updateClock();
-      await fadeIn();
-    }
-
-    const canvas = document.getElementById('analogClock');
-    const ctx = canvas.getContext('2d');
-    const radius = 100; // half of width/height
-
-    function drawClock() {
-      const now = new Date();
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.beginPath();
-      ctx.arc(radius, radius, radius - 10, 0, 2 * Math.PI);
-      ctx.strokeStyle = 'dimgray';
-      ctx.lineWidth = 4;
-      ctx.stroke();
-
-      for (let i = 0; i < 60; i++) {
-        if (i % 5 !== 0) continue;
-        const angle = (i * Math.PI) / 30;
-        let innerRadius = radius - 25;
-        let outerRadius = radius - 9;
-        if (i % 15 === 0) {
-          innerRadius = radius - 30;
-          outerRadius = radius - 9;
-        }
-        ctx.lineWidth = i % 15 === 0 ? 5 : 3;
-        ctx.strokeStyle = 'dimgray';
-        ctx.beginPath();
-        ctx.moveTo(
-          radius + Math.cos(angle - Math.PI / 2) * innerRadius,
-          radius + Math.sin(angle - Math.PI / 2) * innerRadius
-        );
-        ctx.lineTo(
-          radius + Math.cos(angle - Math.PI / 2) * outerRadius,
-          radius + Math.sin(angle - Math.PI / 2) * outerRadius
-        );
-        ctx.stroke();
-      }
-
-      for (let i = 0; i < 60; i++) {
-        if (i % 5 === 0) continue;
-        const angle = (i * Math.PI) / 30;
-        const innerRadius = radius - 20;
-        const outerRadius = radius - 12;
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = 'dimgray';
-        ctx.beginPath();
-        ctx.moveTo(
-          radius + Math.cos(angle - Math.PI / 2) * innerRadius,
-          radius + Math.sin(angle - Math.PI / 2) * innerRadius
-        );
-        ctx.lineTo(
-          radius + Math.cos(angle - Math.PI / 2) * outerRadius,
-          radius + Math.sin(angle - Math.PI / 2) * outerRadius
-        );
-        ctx.stroke();
-      }
-
-      const seconds = now.getSeconds();
-      const minutes = now.getMinutes();
-      const hours = now.getHours();
-      const secondAngle = (seconds * Math.PI) / 30;
-      const minuteAngle = (minutes * Math.PI) / 30 + (secondAngle / 60);
-      const hourAngle = ((hours % 12) + minutes / 60) * (Math.PI / 6);
-
-      ctx.lineWidth = 6;
-      ctx.strokeStyle = 'dimgray';
-      ctx.beginPath();
-      ctx.moveTo(radius, radius);
-      ctx.lineTo(
-        radius + Math.cos(hourAngle - Math.PI / 2) * (radius - 60),
-        radius + Math.sin(hourAngle - Math.PI / 2) * (radius - 60)
-      );
-      ctx.stroke();
-
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(radius, radius);
-      ctx.lineTo(
-        radius + Math.cos(minuteAngle - Math.PI / 2) * (radius - 40),
-        radius + Math.sin(minuteAngle - Math.PI / 2) * (radius - 40)
-      );
-      ctx.stroke();
-
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = 'red';
-      ctx.beginPath();
-      ctx.moveTo(radius, radius);
-      ctx.lineTo(
-        radius + Math.cos(secondAngle - Math.PI / 2) * (radius - 20),
-        radius + Math.sin(secondAngle - Math.PI / 2) * (radius - 20)
-      );
-      ctx.stroke();
-    }
-
-    function updateClock() {
-      const now = new Date();
-      let hours = now.getHours();
-      const minutes = now.getMinutes();
-      const seconds = now.getSeconds();
-      const ampm = hours >= 12 ? 'PM' : 'AM';
-      hours = hours % 12 || 12;
-
-      document.getElementById('hours').textContent = hours;
-      document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
-      document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
-      document.getElementById('ampm').textContent = ampm;
-
-      const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-      const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-      const dayName = days[now.getDay()];
-      const day = now.getDate();
-      const month = months[now.getMonth()];
-      const year = now.getFullYear();
-
-      function getOrdinal(n) { if (n > 3 && n < 21) return 'th'; switch (n % 10) { case 1: return 'st'; case 2: return 'nd'; case 3: return 'rd'; default: return 'th'; } }
-
-      const dateString = `${dayName} ${day}${getOrdinal(day)} ${month} ${year}`;
-      document.getElementById('date').textContent = dateString;
-
-      drawClock();
-
-      if (seconds === 57 && !fadeInitiated) {
-        fadeInitiated = true;
-        handleFadeCycle().then(() => { fadeInitiated = false; });
-      }
-    }
-    setInterval(updateClock, 1000);
+  function fadeOut() {
+    return new Promise((resolve) => {
+      body.style.transition = 'opacity 3s ease-in-out';
+      body.style.opacity = 0;
+      setTimeout(resolve, 3000);
+    });
+  }
+  function fadeIn() {
+    return new Promise((resolve) => {
+      body.style.transition = 'opacity 3s ease-in-out';
+      body.style.opacity = 1;
+      setTimeout(resolve, 3000);
+    });
+  }
+  async function handleFadeCycle() {
+    await fadeOut();
     updateClock();
+    await fadeIn();
+  }
 
-    // === Weather fetching with geolocation ===
-    const apiKey='47c1af6a7c3a2323766a8d053389d54e';
+  const canvas = document.getElementById('analogClock');
+  const ctx = canvas.getContext('2d');
+  const radius = 100;
 
-    function getIconUrl(iconCode) {
-      return `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
-    }
+  function drawClock() {
+    const now = new Date();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.beginPath();
+    ctx.arc(radius, radius, radius - 10, 0, 2 * Math.PI);
+    ctx.strokeStyle = 'dimgray';
+    ctx.lineWidth = 4;
+    ctx.stroke();
 
-    async function fetchForecast(lat, lon) {
-      const url=`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
-      try {
-        const response=await fetch(url);
-        if (!response.ok) throw new Error('Network response not ok');
-        const data=await response.json();
-
-        // Append ", UK" to the location name
-        const locationName = data.city.name || 'Location';
-        const displayName = locationName + ', UK';
-        document.getElementById('location').textContent=displayName;
-
-        const now=new Date();
-        const optionsMonthYear={ year:'numeric', month:'long' };
-        document.getElementById('month-year').textContent=now.toLocaleDateString(undefined, optionsMonthYear);
-
-        const forecastByDate={};
-        data.list.forEach(entry=>{
-          const dateObj=new Date(entry.dt*1000);
-          const options={weekday:'short'};
-          const dayName=dateObj.toLocaleDateString(undefined, options);
-          const dayNumber=dateObj.getDate();
-          const key=dateObj.toDateString();
-          if(!forecastByDate[key]) forecastByDate[key]={ dayName, dayNumber, entries:[] };
-          forecastByDate[key].entries.push(entry);
-        });
-
-        const dates=Object.keys(forecastByDate).slice(0,5);
-        for(let i=0;i<5;i++){
-          const dateKey=dates[i];
-          if(!dateKey){
-            document.getElementById(`day${i+1}`).innerHTML=`<div>No data</div>`;
-            continue;
-          }
-          const { dayName, dayNumber, entries }=forecastByDate[dateKey];
-          const temps=entries.map(e=>e.main.temp);
-          const avgTemp=Math.round(temps.reduce((a,b)=>a+b,0)/temps.length);
-          const midEntry=entries[Math.floor(entries.length/2)];
-          const iconCode=midEntry.weather[0].icon;
-          const description=midEntry.weather[0].description;
-
-          document.getElementById(`day${i+1}`).innerHTML=`
-            <div><strong>${dayNumber} ${dayName}</strong></div>
-            <img class="icon" src="${getIconUrl(iconCode)}" alt="${description}">
-            <div>${avgTemp}°C</div>
-          `;
-        }
-      } catch(e){
-        console.error('Error fetching weather:', e);
+    for (let i=0; i<60; i++) {
+      if (i % 5 !== 0) continue;
+      const angle = (i * Math.PI) / 30;
+      let innerRadius = radius - 25;
+      let outerRadius = radius - 9;
+      if (i % 15 === 0) {
+        innerRadius = radius - 30;
+        outerRadius = radius - 9;
       }
+      ctx.lineWidth = i % 15 === 0 ? 5 : 3;
+      ctx.strokeStyle = 'dimgray';
+      ctx.beginPath();
+      ctx.moveTo(
+        radius + Math.cos(angle - Math.PI/2) * innerRadius,
+        radius + Math.sin(angle - Math.PI/2) * innerRadius
+      );
+      ctx.lineTo(
+        radius + Math.cos(angle - Math.PI/2) * outerRadius,
+        radius + Math.sin(angle - Math.PI/2) * outerRadius
+      );
+      ctx.stroke();
     }
 
-    // Initiate geolocation
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          console.log("Got geolocation:", position);
-          const { latitude, longitude } = position.coords;
-          fetchForecast(latitude, longitude);
-        },
-        (error) => {
-          console.warn("Geolocation failed or denied. Using default location.");
-          fetchForecast(51.5085, -0.1257); // default coords
-        }
+    for (let i=0; i<60; i++) {
+      if (i % 5 === 0) continue;
+      const angle = (i * Math.PI) / 30;
+      const innerRadius = radius - 20;
+      const outerRadius = radius - 12;
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'dimgray';
+      ctx.beginPath();
+      ctx.moveTo(
+        radius + Math.cos(angle - Math.PI/2) * innerRadius,
+        radius + Math.sin(angle - Math.PI/2) * innerRadius
       );
-    } else {
-      console.warn("Geolocation not supported. Using default location.");
-      fetchForecast(51.5085, -0.1257);
+      ctx.lineTo(
+        radius + Math.cos(angle - Math.PI/2) * outerRadius,
+        radius + Math.sin(angle - Math.PI/2) * outerRadius
+      );
+      ctx.stroke();
     }
-  });
+
+    const seconds = now.getSeconds();
+    const minutes = now.getMinutes();
+    const hours = now.getHours();
+
+    const secondAngle = (seconds * Math.PI) / 30;
+    const minuteAngle = (minutes * Math.PI) / 30 + (secondAngle / 60);
+    const hourAngle = ((hours % 12) + minutes / 60) * (Math.PI / 6);
+
+    ctx.lineWidth = 6;
+    ctx.strokeStyle='dimgray';
+    ctx.beginPath();
+    ctx.moveTo(radius, radius);
+    ctx.lineTo(
+      radius + Math.cos(hourAngle - Math.PI/2) * (radius - 60),
+      radius + Math.sin(hourAngle - Math.PI/2) * (radius - 60)
+    );
+    ctx.stroke();
+
+    ctx.lineWidth=3;
+    ctx.beginPath();
+    ctx.moveTo(radius, radius);
+    ctx.lineTo(
+      radius + Math.cos(minuteAngle - Math.PI/2) * (radius - 40),
+      radius + Math.sin(minuteAngle - Math.PI/2) * (radius - 40)
+    );
+    ctx.stroke();
+
+    ctx.lineWidth=2;
+    ctx.strokeStyle='red';
+    ctx.beginPath();
+    ctx.moveTo(radius, radius);
+    ctx.lineTo(
+      radius + Math.cos(secondAngle - Math.PI/2) * (radius -20),
+      radius + Math.sin(secondAngle - Math.PI/2) * (radius -20)
+    );
+    ctx.stroke();
+  }
+
+  function updateClock() {
+    const now=new Date();
+    let hours=now.getHours();
+    const minutes=now.getMinutes();
+    const seconds=now.getSeconds();
+    const ampm=hours>=12?'PM':'AM';
+    hours=hours%12||12;
+
+    document.getElementById('hours').textContent=hours;
+    document.getElementById('minutes').textContent=String(minutes).padStart(2,'0');
+    document.getElementById('seconds').textContent=String(seconds).padStart(2,'0');
+    document.getElementById('ampm').textContent=ampm;
+
+    const days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+    const months=["January","February","March","April","May","June","July","August","September","October","November","December"];
+    const dayName=days[now.getDay()];
+    const day=now.getDate();
+    const month=months[now.getMonth()];
+    const year=now.getFullYear();
+
+    function getOrdinal(n){ if(n>3 && n<21) return 'th'; switch(n%10){ case 1: return 'st'; case 2: return 'nd'; case 3: return 'rd'; default: return 'th'; } }
+
+    const dateString=`${dayName} ${day}${getOrdinal(day)} ${month} ${year}`;
+    document.getElementById('date').textContent=dateString;
+
+    drawClock();
+
+    if (seconds===57 && !fadeInitiated) {
+      fadeInitiated=true;
+      handleFadeCycle().then(()=>{ fadeInitiated=false; });
+    }
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // --- Location & Weather setup with IPv6 fetch ---
+  let defaultLat = 51.5074; // fallback: London
+  let defaultLon = -0.1278;
+  let defaultLocationName = 'Your Location';
+
+  // Fetch IPv6 address
+  fetch('https://api64.ipify.org?format=json')
+    .then(res => res.json())
+    .then(data => {
+      const ipv6 = data.ip;
+      // Query ipapi.co with the IPv6 address
+      return fetch(`https://ipapi.co/${ipv6}/json/`);
+    })
+    .then(res => res.json())
+    .then(locationData => {
+      const countryName = locationData.country_name || '';
+      const city = locationData.city || 'Your Location';
+
+      const isUK = (countryName === 'United Kingdom' || countryName === 'UK');
+      const displayName = isUK ? `${city}, UK` : city;
+
+      document.getElementById('location').textContent = displayName;
+
+      const lat = locationData.latitude || defaultLat;
+      const lon = locationData.longitude || defaultLon;
+
+      fetchWeatherData(lat, lon);
+    })
+    .catch(() => {
+      // fallback if IPv6 or ipapi.co fetch fails
+      document.getElementById('location').textContent='Your Location';
+      fetchWeatherData(defaultLat, defaultLon);
+    });
+
+  async function fetchWeatherData(lat, lon) {
+    await fetchTodayWeather(lat, lon);
+    await fetchNext7Hours(lat, lon);
+    await fetchWeeklyForecast(lat, lon);
+  }
+
+  // Weather code to icon mapping
+  const weatherCodeToIconAndColor = {
+    0: { icon: 'circle-sun', color: 'goldenrod' },
+    1: { icon: 'fa-cloud-sun', color: 'lightgray' },
+    2: { icon: 'fa-cloud-sun', color: 'lightgray' },
+    3: { icon: 'fa-cloud', color: 'gray' },
+    45: { icon: 'fa-smog', color: 'gray' },
+    48: { icon: 'fa-smog', color: 'gray' },
+    51: { icon: 'fa-cloud-showers-heavy', color: 'blue' },
+    53: { icon: 'fa-cloud-showers-heavy', color: 'blue' },
+    55: { icon: 'fa-cloud-showers-heavy', color: 'blue' },
+    61: { icon: 'fa-cloud-rain', color: 'blue' },
+    63: { icon: 'fa-cloud-rain', color: 'blue' },
+    65: { icon: 'fa-cloud-rain', color: 'blue' },
+    71: { icon: 'fa-snowflake', color: 'white' },
+    73: { icon: 'fa-snowflake', color: 'white' },
+    75: { icon: 'fa-snowflake', color: 'white' },
+    80: { icon: 'fa-bolt', color: 'orange' },
+    81: { icon: 'fa-bolt', color: 'orange' },
+    82: { icon: 'fa-bolt', color: 'orange' },
+  };
+
+  async function fetchTodayWeather(lat, lon) {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response not ok');
+      const data = await response.json();
+      // You can add code to display current weather here
+      document.getElementById('todays-weather').textContent='Local Weather';
+    } catch(e){
+      console.error('Error fetching weather:', e);
+      document.getElementById('todays-weather').textContent='Local Weather';
+    }
+  }
+
+  async function fetchNext7Hours(lat, lon) {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,weathercode&timezone=auto`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response not ok');
+      const data = await response.json();
+
+      const now=new Date();
+      const currentHour=now.getHours();
+
+      const hoursArray = data.hourly.time.map(t => new Date(t));
+      const indices=[];
+
+      for(let i=0;i<hoursArray.length;i++) {
+        const dt=hoursArray[i];
+        const hour=dt.getHours();
+        const dateDay=dt.getDate();
+        if (dateDay > now.getDate() || (dateDay===now.getDate() && hour>=currentHour)) {
+          indices.push(i);
+          if(indices.length===7) break;
+        }
+      }
+
+      const container=document.getElementById('hourly-forecast');
+      container.innerHTML='';
+      for(const i of indices) {
+        const dt=new Date(data.hourly.time[i]);
+        const hour=dt.getHours();
+        const ampm=hour>=12?'PM':'AM';
+        const hour12=hour%12||12;
+        const timeStr=`${hour12} ${ampm}`;
+        const temp=Math.round(data.hourly.temperature_2m[i]);
+        const code=data.hourly.weathercode[i];
+        const iconData=weatherCodeToIconAndColor[code]||{icon:'fa-question',color:'white'};
+        const div=document.createElement('div');
+        div.className='forecast-item';
+        div.innerHTML=`
+          <div class="hour-time">${timeStr}</div>
+          <div style="color:${iconData.color}; font-family:'Font Awesome 6 Free'; font-weight:900; font-size:1em; display:flex; justify-content:center; align-items:center; height:1em;">
+            ${iconData.icon==='circle-sun'?'<div style="width:1em; height:1em; background-color:gold; border-radius:50%; margin:auto;"></div>':'<i class="fa '+iconData.icon+'"></i>'}
+          </div>
+          <div>${temp}°C</div>
+        `;
+        container.appendChild(div);
+      }
+    } catch(e){
+      console.error('Error fetching hourly forecast:', e);
+    }
+  }
+
+  async function fetchWeeklyForecast(lat, lon) {
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto`;
+    try {
+      const response=await fetch(url);
+      if(!response.ok) throw new Error('Network response not ok');
+      const data=await response.json();
+      const container=document.getElementById('weekly-forecast');
+      container.innerHTML='';
+      const daysCount=data.daily.time.length;
+      for(let i=0;i<daysCount;i++){
+        const dt=new Date(data.daily.time[i]);
+        const options={weekday:'short', month:'short', day:'numeric'};
+        const dayName=dt.toLocaleDateString(undefined, options);
+        const code=data.daily.weathercode[i];
+        const iconData=weatherCodeToIconAndColor[code]||{icon:'fa-question',color:'white'};
+        const maxTemp=Math.round(data.daily.temperature_2m_max[i]);
+        const minTemp=Math.round(data.daily.temperature_2m_min[i]);
+        const div=document.createElement('div');
+        div.className='forecast-item';
+        div.innerHTML=`
+          <div class="day-name">${dayName}</div>
+          <div style="color:${iconData.color}; font-family:'Font Awesome 6 Free'; font-weight:900; font-size:1em; display:flex; justify-content:center; align-items:center; height:1em;">
+            <i class="fa ${iconData.icon}"></i>
+          </div>
+          <div>${maxTemp}° / ${minTemp}°</div>
+        `;
+        container.appendChild(div);
+      }
+    } catch(e){
+      console.error('Error fetching weekly forecast:', e);
+    }
+  }
+
+  // set refresh intervals
+  setInterval(fetchNext7Hours,60*60*1000);
+  setInterval(fetchWeeklyForecast,24*60*60*1000);
+  setInterval(fetchTodayWeather,60*60*1000);
 </script>
 </body>
 </html>
