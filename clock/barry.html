@@ -4,12 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Time & Date & Weather Display with Analog Clock</title>
-<link type="image/png" sizes="16x16" rel="icon" href="https://img.icons8.com/?size=16&id=113106&format=png">
-<!-- Include Font Awesome CDN -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<link type="image/png" sizes="16x16" rel="icon" href="https://img.icons8.com/?size=16&id=113106&format=png" />
 <style>
+  /* ... Your existing styles ... (unchanged) ... */
   body {
-    margin-top: 30px;
+    margin-top: 15px;
     padding: 0;
     height: 100vh;
     background-color: black;
@@ -21,19 +20,16 @@
     justify-content: start;
     overflow: hidden;
   }
-
   #header {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
   }
-
   #analogClock {
     width: 150px;
     height: 150px;
   }
-
   #time {
     font-size: clamp(5rem, 10vw, 8rem);
     display: flex;
@@ -57,13 +53,11 @@
     font-size: 0.4em;
     margin-left: 0.2em;
   }
-
   #date {
-    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
     margin-top: 1.5vh;
     text-align: center;
   }
-
   #main-content {
     display: flex;
     flex-direction: row;
@@ -73,25 +67,50 @@
     max-width: 1800px;
     padding: 20px;
   }
-
   #location-weather {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 60px;
+    margin-top: 40px;
     margin-right: 30px;
     text-align: center;
   }
-
   #location {
     font-weight: bold;
-    font-size: 1.0em;
+    font-size: 1.3em;
   }
-
   #todays-weather {
-    font-size: 1.0em;
+    font-size: 1.3em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
-
+  /* Container for weather icon + temperature with smaller background */
+  .weather-background {
+    background: #111; /* default background, change as needed */
+    padding: 4px;        /* smaller padding for compact size */
+    border-radius: 6px;
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column; /* vertical stacking */
+    align-items: center;    /* center horizontally */
+    width: 80px;            /* smaller width, adjust as needed */
+    height: 85px;
+    justify-content: center;
+  }
+  /* Make icon smaller if desired */
+  #weather-icon {
+    margin-top: -10px;
+    width: 90px;
+    height: 90px;
+  }
+  #temperature {
+    margin-top: 20px; /* small space above icon */
+    font-size: 0.9em;
+    color: dimgray;
+    text-align: center;
+  }
+  /* Forecast styling remains the same */
   #forecast-container {
     display: flex;
     flex-direction: column;
@@ -100,7 +119,6 @@
     margin-top: 10px;
     flex: 0; /* prevent growth/shrink */
   }
-
   .forecast-row {
     display: flex;
     flex-direction: row;
@@ -110,10 +128,10 @@
     width: 100%;
     white-space: nowrap;
   }
-
   .forecast-item {
     min-width: 70px;
     background: #111;
+    color: dimgray;
     padding: 6px;
     border-radius: 6px;
     margin-right: 5px;
@@ -121,7 +139,6 @@
     font-size: 0.8em;
     display: inline-block;
   }
-
   @media (min-width: 1920px) {
     body {
       justify-content: start;
@@ -146,7 +163,14 @@
 <div id="main-content">
   <div id="location-weather">
     <div id="location">Loading location...</div>
-    <div id="todays-weather">Local Weather</div>
+    <div id="todays-weather">
+      <div>Current Weather</div>
+      <!-- Smaller background box with temperature above icon -->
+      <div class="weather-background" id="weather-background">
+        <div id="temperature"></div>
+        <img id="weather-icon" src="" alt="Weather Icon" />
+      </div>
+    </div>
   </div>
   <div id="forecast-container">
     <div id="hourly-forecast" class="forecast-row"></div>
@@ -192,6 +216,7 @@
     ctx.lineWidth = 4;
     ctx.stroke();
 
+    // --- Clock face markings ---
     for (let i=0; i<60; i++) {
       if (i % 5 !== 0) continue;
       const angle = (i * Math.PI) / 30;
@@ -285,6 +310,7 @@
     document.getElementById('seconds').textContent=String(seconds).padStart(2,'0');
     document.getElementById('ampm').textContent=ampm;
 
+    // Date formatting code
     const days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
     const months=["January","February","March","April","May","June","July","August","September","October","November","December"];
     const dayName=days[now.getDay()];
@@ -308,15 +334,16 @@
   updateClock();
 
   // --- Static Location Coordinates ---
-  const defaultLat = 51.4066; // Example: City latitude
-  const defaultLon = -3.2834; // Example: City longitude
+  const lat = 51.4066; // static location latitude
+  const lon = -3.2834; // static location longitude
 
   // Set static location name
   document.getElementById('location').textContent = 'Barry, UK';
 
-  // Fetch weather data for static location
-  fetchWeatherData(defaultLat, defaultLon);
+  // Initial fetch on load
+  fetchWeatherData(lat, lon);
 
+  // Fetch weather data for static location
   async function fetchWeatherData(lat, lon) {
     await fetchTodayWeather(lat, lon);
     await fetchNext7Hours(lat, lon);
@@ -324,25 +351,25 @@
   }
 
   // Weather code to icon mapping
-  const weatherCodeToIconAndColor = {
-    0: { icon: 'circle-sun', color: 'goldenrod' },
-    1: { icon: 'fa-cloud-sun', color: 'lightgray' },
-    2: { icon: 'fa-cloud-sun', color: 'lightgray' },
-    3: { icon: 'fa-cloud', color: 'gray' },
-    45: { icon: 'fa-smog', color: 'gray' },
-    48: { icon: 'fa-smog', color: 'gray' },
-    51: { icon: 'fa-cloud-showers-heavy', color: 'blue' },
-    53: { icon: 'fa-cloud-showers-heavy', color: 'blue' },
-    55: { icon: 'fa-cloud-showers-heavy', color: 'blue' },
-    61: { icon: 'fa-cloud-rain', color: 'blue' },
-    63: { icon: 'fa-cloud-rain', color: 'blue' },
-    65: { icon: 'fa-cloud-rain', color: 'blue' },
-    71: { icon: 'fa-snowflake', color: 'white' },
-    73: { icon: 'fa-snowflake', color: 'white' },
-    75: { icon: 'fa-snowflake', color: 'white' },
-    80: { icon: 'fa-bolt', color: 'orange' },
-    81: { icon: 'fa-bolt', color: 'orange' },
-    82: { icon: 'fa-bolt', color: 'orange' },
+  const weatherCodeToIcon = {
+    0: '01d', // clear sky
+    1: '02d', // few clouds
+    2: '03d', // scattered clouds
+    3: '04d', // broken clouds
+    45: '50d', // fog
+    48: '50d', // depositing rime fog
+    51: '09d', // drizzle
+    53: '09d', // drizzle
+    55: '09d', // intense drizzle
+    61: '10d', // rain
+    63: '10d', // moderate rain
+    65: '10d', // heavy rain
+    71: '13d', // snow
+    73: '13d', // snow
+    75: '13d', // heavy snow
+    80: '09d', // shower rain
+    81: '09d', // heavy shower rain
+    82: '09d', // violent shower rain
   };
 
   async function fetchTodayWeather(lat, lon) {
@@ -351,11 +378,23 @@
       const response = await fetch(url);
       if (!response.ok) throw new Error('Network response not ok');
       const data = await response.json();
-      // You can add code to display current weather here
-      document.getElementById('todays-weather').textContent='Local Weather';
+      const weatherCode = data.current_weather.weathercode;
+      const iconCode = weatherCodeToIcon[weatherCode] || '01d';
+      const temperature = Math.round(data.current_weather.temperature);
+
+      const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+      document.getElementById('weather-icon').src=iconUrl;
+
+      // Apply a specific class for styling the small background box
+      document.getElementById('weather-background').className='weather-background';
+
+      // Set temperature above icon inside the same background
+      document.getElementById('temperature').textContent = `${temperature}°C`;
     } catch(e){
       console.error('Error fetching weather:', e);
-      document.getElementById('todays-weather').textContent='Local Weather';
+      document.getElementById('todays-weather').textContent='Current Weather';
+      document.getElementById('weather-icon').src=''; // fallback or empty
+      document.getElementById('temperature').textContent = '';
     }
   }
 
@@ -367,16 +406,19 @@
       const data = await response.json();
 
       const now=new Date();
-      const currentHour=now.getHours();
 
+      // --- Modified code: use timestamps for comparison ---
+      const nowTimestamp = now.getTime();
+
+      // Convert forecast times to Date objects
       const hoursArray = data.hourly.time.map(t => new Date(t));
       const indices=[];
 
       for(let i=0;i<hoursArray.length;i++) {
         const dt=hoursArray[i];
-        const hour=dt.getHours();
-        const dateDay=dt.getDate();
-        if (dateDay > now.getDate() || (dateDay===now.getDate() && hour>=currentHour)) {
+        const dtTimestamp=dt.getTime();
+        // Include hours at or after current timestamp
+        if (dtTimestamp >= nowTimestamp) {
           indices.push(i);
           if(indices.length===7) break;
         }
@@ -392,13 +434,15 @@
         const timeStr=`${hour12} ${ampm}`;
         const temp=Math.round(data.hourly.temperature_2m[i]);
         const code=data.hourly.weathercode[i];
-        const iconData=weatherCodeToIconAndColor[code]||{icon:'fa-question',color:'white'};
+        const iconCode = weatherCodeToIcon[code] || '01d';
+
+        const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
         const div=document.createElement('div');
         div.className='forecast-item';
         div.innerHTML=`
           <div class="hour-time">${timeStr}</div>
-          <div style="color:${iconData.color}; font-family:'Font Awesome 6 Free'; font-weight:900; font-size:1em; display:flex; justify-content:center; align-items:center; height:1em;">
-            ${iconData.icon==='circle-sun'?'<div style="width:1em; height:1em; background-color:gold; border-radius:50%; margin:auto;"></div>':'<i class="fa '+iconData.icon+'"></i>'}
+          <div style="display:flex; justify-content:center; align-items:center; height:35px;">
+            <img src="${iconUrl}" alt="Weather Icon" style="width:70px; height:70px;">
           </div>
           <div>${temp}°C</div>
         `;
@@ -423,15 +467,17 @@
         const options={weekday:'short', month:'short', day:'numeric'};
         const dayName=dt.toLocaleDateString(undefined, options);
         const code=data.daily.weathercode[i];
-        const iconData=weatherCodeToIconAndColor[code]||{icon:'fa-question',color:'white'};
+        const iconCode = weatherCodeToIcon[code] || '01d';
         const maxTemp=Math.round(data.daily.temperature_2m_max[i]);
         const minTemp=Math.round(data.daily.temperature_2m_min[i]);
+
+        const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
         const div=document.createElement('div');
         div.className='forecast-item';
         div.innerHTML=`
           <div class="day-name">${dayName}</div>
-          <div style="color:${iconData.color}; font-family:'Font Awesome 6 Free'; font-weight:900; font-size:1em; display:flex; justify-content:center; align-items:center; height:1em;">
-            <i class="fa ${iconData.icon}"></i>
+          <div style="display:flex; justify-content:center; align-items:center; height:35px;">
+            <img src="${iconUrl}" alt="Weather Icon" style="width:70px; height:70px;">
           </div>
           <div>${maxTemp}° / ${minTemp}°</div>
         `;
@@ -442,10 +488,10 @@
     }
   }
 
-  // set refresh intervals
-  setInterval(fetchNext7Hours,60*60*1000);
-  setInterval(fetchWeeklyForecast,24*60*60*1000);
-  setInterval(fetchTodayWeather,60*60*1000);
+  // --- Refresh intervals with parameters ---
+  setInterval(() => fetchTodayWeather(lat, lon), 5 * 60 * 1000);
+  setInterval(() => fetchNext7Hours(lat, lon), 5 * 60 * 1000);
+  setInterval(() => fetchWeeklyForecast(lat, lon), 60 * 60 * 1000);
 </script>
 </body>
 </html>
