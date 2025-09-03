@@ -87,7 +87,7 @@
   }
   /* Container for weather icon + temperature with smaller background */
   .weather-background {
-    background: #111; /* default background, change as needed */
+    background: #202020; /* default background, change as needed */
     padding: 4px;        /* smaller padding for compact size */
     border-radius: 6px;
     margin-top: 8px;
@@ -130,7 +130,7 @@
   }
   .forecast-item {
     min-width: 70px;
-    background: #111;
+    background: #202020;
     color: dimgray;
     padding: 6px;
     border-radius: 6px;
@@ -442,7 +442,7 @@
         div.innerHTML=`
           <div class="hour-time">${timeStr}</div>
           <div style="display:flex; justify-content:center; align-items:center; height:35px;">
-            <img src="${iconUrl}" alt="Weather Icon" style="width:70px; height:70px;">
+            <img src="${iconUrl}" alt="Weather Icon" style="width:60px; height:60px;">
           </div>
           <div>${temp}°C</div>
         `;
@@ -477,7 +477,7 @@
         div.innerHTML=`
           <div class="day-name">${dayName}</div>
           <div style="display:flex; justify-content:center; align-items:center; height:35px;">
-            <img src="${iconUrl}" alt="Weather Icon" style="width:70px; height:70px;">
+            <img src="${iconUrl}" alt="Weather Icon" style="width:60px; height:60px;">
           </div>
           <div>${maxTemp}° / ${minTemp}°</div>
         `;
