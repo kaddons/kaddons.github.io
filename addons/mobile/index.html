@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mobile</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #121212;
+    padding: 20px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* center all content horizontally */
+    min-height: 100vh; /* full viewport height */
+    color: #eee;
+  }
+
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 2rem;
+  }
+
+  #buttonsContainer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 800px;
+    align-items: center;
+  }
+
+  /* Each row aligns button and info horizontally, centered vertically */
+  .item-row {
+    display: flex;
+    align-items: center; /* vertical alignment */
+    justify-content: flex-start; /* align to the left horizontally but with spacing */
+    width: 100%;
+    margin: 10px 0;
+    flex-wrap: 0; /* allow wrapping on small screens if needed */
+  }
+
+  /* Style for the button/link */
+  .file-link {
+    display: inline-block;
+    min-width: 200px;
+    height: 50px;
+    line-height: 50px;
+    padding: 0 10px;
+    border-radius: 8px;
+    background-color: #4CAF50;
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    margin-right: 20px;
+    flex-shrink: 0;
+  }
+  .file-link:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+  }
+
+  /* Info container: display date and highlight, larger and bold for prominence */
+  .info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  /* Make date and highlight bigger and bold */
+  .info span {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+
+  /* Highlight styles */
+  .highlight.updated {
+    color: #104710;
+  }
+  .highlight.new {
+    color: #362852;
+  }
+  .highlight.old {
+    color: #590d0d;
+  }
+
+  /* Responsive adjustments */
+  @media(max-width: 600px){
+    body {
+      padding: 10px;
+    }
+    h1 {
+      font-size: 1.8rem;
+    }
+    .file-link {
+      font-size: 1rem;
+      min-width: 150px;
+      height: 40px;
+      line-height: 40px;
+    }
+    .info span {
+      font-size: 1.2rem;
+    }
+  }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<h1>Mobile</h1>
+<div id="instructions" style="text-align:center; margin-bottom:20px;">
+  Loading data from Excel...
+</div>
+<div id="buttonsContainer"></div>
+
+<script>
+window.onload = function() {
+  fetch('mobile.xlsx') // Replace with your actual filename
+    .then(response => {
+      if (!response.ok) throw new Error('Network response was not ok');
+      return response.arrayBuffer();
+    })
+    .then(data => {
+      const workbook = XLSX.read(data, { type: 'array' });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+      
+      // Remove loading message
+      document.getElementById('instructions').style.display = 'none';
+
+      const container = document.getElementById('buttonsContainer');
+      container.innerHTML = '';
+
+      jsonData.forEach(item => {
+        let displayDate = item.Date;
+        if (typeof displayDate === 'number') {
+          const excelEpoch = new Date(1899, 11, 30);
+          displayDate = new Date(excelEpoch.getTime() + displayDate * 86400 * 1000);
+          displayDate = displayDate.toLocaleDateString();
+        }
+
+        const row = document.createElement('div');
+        row.className = 'item-row';
+
+        const a = document.createElement('a');
+        a.className = 'file-link';
+        a.innerText = item.Name;
+        a.href = item.URL;
+        a.target = '_blank';
+        a.download = item.Name;
+
+        const highlight = item.Highlight.toLowerCase();
+        if (highlight === 'updated') {
+          a.style.backgroundColor = '#104710';
+        } else if (highlight === 'new') {
+          a.style.backgroundColor = '#362852';
+        } else if (highlight === 'old') {
+          a.style.backgroundColor = '#590d0d';
+        }
+
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'info';
+        infoDiv.innerHTML = `
+          <span>${displayDate} <span class="highlight ${highlight}">${item.Highlight}</span></span>
+        `;
+
+        row.appendChild(a);
+        row.appendChild(infoDiv);
+        document.getElementById('buttonsContainer').appendChild(row);
+      });
+    })
+    .catch(error => {
+      document.getElementById('instructions').textContent = 'Error loading Excel file.';
+      console.error('Error:', error);
+    });
+};
+</script>
+
+</body>
+</html>

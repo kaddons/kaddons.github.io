@@ -1,0 +1,58 @@
+adb shell settings put system time_12_24 12
+adb shell service call alarm 3 s16 Europe/London
+adb shell settings put global time_zone Europe/London
+
+adb -s 192.168.0.11:5555 push /sdcard/dl.apk /data/local/tmp/
+adb -s 192.168.0.11:5555 push /sdcard/es.apk /data/local/tmp/
+
+adb -s 192.168.0.11:5555 install /data/local/tmp/dl.apk
+adb -s 192.168.0.11:5555 install /data/local/tmp/es.apk
+
+adb shell pm disable-user --user 0 com.airtel.fti
+adb shell pm disable-user --user 0 com.uei.uas.airtel
+adb shell pm disable-user --user 0 com.airtel.tv
+adb shell pm disable-user --user 0 com.firmware.update
+adb shell pm disable-user --user 0 com.google.android.onetimeinitializer
+
+
+adb shell pm uninstall --user 0 com.netflix.ninja
+adb shell pm uninstall --user 0 com.amazon.amazonvideo.livingroom
+adb shell pm uninstall --user 0 com.google.android.music
+adb shell pm uninstall --user 0 com.google.android.play.games
+adb shell pm uninstall --user 0 com.google.android.videos 
+adb shell pm uninstall --user 0 com.google.android.youtube.tvkids
+adb shell pm uninstall --user 0 com.google.android.youtube.tv
+
+
+
+adb shell pm enable
+
+adb shell
+hsw4026atl:/ $
+
+#1 To uninstall an app with its data
+adb shell pm uninstall --user 0 <package name>
+#2 To uninstall an app but keep its data
+adb shell pm uninstall -k --user 0 <package name>
+
+restore app cmd package install-existing <package name>
+
+adb shell settings put system time_12_24 12
+adb shell service call alarm 3 s16 Europe/London
+adb shell settings put global time_zone Europe/London
+
+adb shell pm grant net.sanapeli.adbchangelanguage android.permission.CHANGE_CONFIGURATION
+adb shell am start -n net.sanapeli.adbchangelanguage/.AdbChangeLanguage -e language en-GB -e country GB
+adb shell am start -n net.sanapeli.adbchangelanguage/.AdbChangeLanguage -e language en--GB -e country GB
+
+adb shell am broadcast -a com.android.intent.action.SET_LOCALE --es com.android.intent.extra.LOCALE "en_US" com.android.customlocale2
+
+adb shell pm grant com.balda.securetask android.permission.WRITE_SECURE_SETTINGS
+adb shell pm grant com.balda.securetask android.permission.READ_LOGS
+adb shell pm grant com.balda.securetask android.permission.DUMP
+adb shell pm grant com.balda.securetask android.permission.CHANGE_CONFIGURATION
+
+adb push es.apk /data/local/tmp/
+adb pull /data/local/tmp/copyme /destination/copyme
+
+adb shell pm install 

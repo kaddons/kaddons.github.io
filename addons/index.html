@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Addons</title>
+<style>
+  body {
+    font-family: 'Arial', sans-serif;
+    background-color: #1e1e2f;
+    margin: 0;
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  h1 {
+    color: #f0f0f0;
+    font-size: 3em; /* Bigger font for large screens */
+    margin-bottom: 50px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  }
+
+  .addons-container {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* Keep shape the same, but size changes */
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: #fff;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+    /* Default sizes for larger screens (like TV) */
+    width: 550px;
+    height: 180px;
+    font-size: 1.8em;
+  }
+
+  /* Colors for buttons with darker theme */
+  .btn-tv {
+    background-color: #853028; /* Dark coral */
+  }
+
+  .btn-tv:hover {
+    background-color: #ff4b3e;
+  }
+
+  .btn-mobile {
+    background-color: #2a5880; /* Dark blue */
+  }
+
+  .btn-mobile:hover {
+    background-color: #3a9eea;
+  }
+
+  .btn-other{
+    background-color: #18472d; /* Dark Green */
+  }
+
+  .btn-other:hover {
+    background-color: #339961;
+  }
+
+  /* Responsiveness for smaller devices - scale down buttons */
+  @media (max-width: 1000px) {
+    .btn {
+      width: 220px;
+      height: 70px;
+      font-size: 1.6em;
+    }
+  }
+
+  @media (max-width: 700px) {
+    h1 {
+      font-size: 2em;
+    }
+    .btn {
+      width: 200px;
+      height: 60px;
+      font-size: 1.4em;
+    }
+  }
+
+  /* Larger size for very large screens like TVs */
+  @media (min-width: 1600px) {
+    .btn {
+      width: 700px;
+      height: 220px;
+      font-size: 2em;
+    }
+  }
+</style>
+</head>
+<body>
+
+<h1>Addons</h1>
+
+<div class="addons-container">
+  <a href="tv" class="btn btn-tv">TV</a>
+  <a href="mobile" class="btn btn-mobile">Mobile</a>
+  <a href="other" class="btn btn-other">Other</a>
+</div>
+
+</body>
+</html>
