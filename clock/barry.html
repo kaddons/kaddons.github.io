@@ -100,7 +100,7 @@
   }
   /* Make icon smaller if desired */
   #weather-icon {
-    margin-top: -10px;
+    margin-top: -15px;
     width: 90px;
     height: 90px;
   }
@@ -442,7 +442,7 @@
         div.innerHTML=`
           <div class="hour-time">${timeStr}</div>
           <div style="display:flex; justify-content:center; align-items:center; height:35px;">
-            <img src="${iconUrl}" alt="Weather Icon" style="width:60px; height:60px;">
+            <img src="${iconUrl}" alt="Weather Icon" style="width:50px; height:50px;">
           </div>
           <div>${temp}°C</div>
         `;
@@ -477,7 +477,7 @@
         div.innerHTML=`
           <div class="day-name">${dayName}</div>
           <div style="display:flex; justify-content:center; align-items:center; height:35px;">
-            <img src="${iconUrl}" alt="Weather Icon" style="width:60px; height:60px;">
+            <img src="${iconUrl}" alt="Weather Icon" style="width:50px; height:50px;">
           </div>
           <div>${maxTemp}° / ${minTemp}°</div>
         `;
