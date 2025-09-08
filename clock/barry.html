@@ -130,7 +130,7 @@
   }
   .forecast-item {
     min-width: 70px;
-    background: #202020;
+    background:  #202020;
     color: dimgray;
     padding: 6px;
     border-radius: 6px;
@@ -340,7 +340,7 @@
   // Set static location name
   document.getElementById('location').textContent = 'Barry, UK';
 
-  // Initial fetch on load
+  // Fetch weather data on load
   fetchWeatherData(lat, lon);
 
   // Fetch weather data for static location
@@ -398,6 +398,7 @@
     }
   }
 
+  // --- Updated fetchNext7Hours ---
   async function fetchNext7Hours(lat, lon) {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,weathercode&timezone=auto`;
     try {
@@ -405,39 +406,45 @@
       if (!response.ok) throw new Error('Network response not ok');
       const data = await response.json();
 
-      const now=new Date();
-
-      // --- Modified code: use timestamps for comparison ---
-      const nowTimestamp = now.getTime();
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth();
+      const currentDate = now.getDate();
+      const currentHour = now.getHours();
 
       // Convert forecast times to Date objects
       const hoursArray = data.hourly.time.map(t => new Date(t));
-      const indices=[];
+      const indices = [];
 
-      for(let i=0;i<hoursArray.length;i++) {
-        const dt=hoursArray[i];
-        const dtTimestamp=dt.getTime();
-        // Include hours at or after current timestamp
-        if (dtTimestamp >= nowTimestamp) {
+      // Find the index where forecast date and hour match or are after current date and hour
+      for (let i = 0; i < hoursArray.length; i++) {
+        const dt = hoursArray[i];
+        if (
+          dt.getFullYear() > currentYear ||
+          (dt.getFullYear() === currentYear && dt.getMonth() > currentMonth) ||
+          (dt.getFullYear() === currentYear && dt.getMonth() === currentMonth && dt.getDate() > currentDate) ||
+          (dt.getFullYear() === currentYear && dt.getMonth() === currentMonth && dt.getDate() === currentDate && dt.getHours() >= currentHour)
+        ) {
           indices.push(i);
-          if(indices.length===7) break;
+          if (indices.length === 7) break;
         }
       }
 
-      const container=document.getElementById('hourly-forecast');
-      container.innerHTML='';
-      for(const i of indices) {
-        const dt=new Date(data.hourly.time[i]);
-        const hour=dt.getHours();
-        const ampm=hour>=12?'PM':'AM';
-        const hour12=hour%12||12;
-        const timeStr=`${hour12} ${ampm}`;
-        const temp=Math.round(data.hourly.temperature_2m[i]);
-        const code=data.hourly.weathercode[i];
+      const container = document.getElementById('hourly-forecast');
+      container.innerHTML = '';
+
+      for (const i of indices) {
+        const dt = new Date(data.hourly.time[i]);
+        const hour = dt.getHours();
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        const hour12 = hour % 12 || 12;
+        const timeStr = `${hour12} ${ampm}`;
+        const temp = Math.round(data.hourly.temperature_2m[i]);
+        const code = data.hourly.weathercode[i];
         const iconCode = weatherCodeToIcon[code] || '01d';
 
         const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
-        const div=document.createElement('div');
+        const div = document.createElement('div');
         div.className='forecast-item';
         div.innerHTML=`
           <div class="hour-time">${timeStr}</div>
@@ -488,7 +495,7 @@
     }
   }
 
-  // --- Refresh intervals with parameters ---
+  // --- Refresh intervals ---
   setInterval(() => fetchTodayWeather(lat, lon), 5 * 60 * 1000);
   setInterval(() => fetchNext7Hours(lat, lon), 5 * 60 * 1000);
   setInterval(() => fetchWeeklyForecast(lat, lon), 60 * 60 * 1000);
