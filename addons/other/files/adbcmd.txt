@@ -2,6 +2,50 @@ adb shell settings put system time_12_24 12
 adb shell service call alarm 3 s16 Europe/London
 adb shell settings put global time_zone Europe/London
 
+adb shell pm list packages -f
+
+adb shell input keyevent KEYCODE_SOFT_SLEEP
+
+adb shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh
+
+adb shell sh /storage/emulated/0/Android/data/moe.shizuku.privileged.api/start.sh
+
+adb shell settings put secure enabled_accessibility_services flar2.homebutton
+
+adb shell settings put secure enabled_accessibility_services flar2.homebutton/flar2.homebutton.util
+
+adb shell pm grant flar2.homebutton android.permission.WRITE_SECURE_SETTINGS
+
+adb shell settings put secure screensaver_components dev.imranr.daydreamportal/dev.imranr.daydreamportal.MyDaydreamService
+
+adb shell settings put secure screensaver_components com.wookee.deskclock/com.wookee.deskclock.Screensaver
+
+settings get secure screensaver_components
+
+Screensaver timeout
+
+adb shell settings put system screen_off_timeout 2147460000
+
+adb shell settings put system screen_off_timeout 300000
+
+reboot
+
+Sleep timeout MAIN TO SETUP
+
+adb shell settings put secure sleep_timeout 2147460000
+
+adb shell settings put secure sleep_timeout 1200000
+
+adb shell settings put secure sleep_timeout -1
+
+reboot
+
+GET status
+
+adb shell settings get secure sleep_timeout
+
+adb shell settings get system screen_off_timeout
+
 adb -s 192.168.0.11:5555 push /sdcard/dl.apk /data/local/tmp/
 adb -s 192.168.0.11:5555 push /sdcard/es.apk /data/local/tmp/
 
