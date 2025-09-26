@@ -120,6 +120,22 @@ adb pull /data/local/tmp/copyme /destination/copyme
 
 adb shell pm install 
 
+https://github.com/patrickfav/uber-adb-tools
+
+cmd or powershell
+for %f in (C:\your_app_path\*.apk) do adb install "%f"
+
+bat file
+@echo Preparing to install all .apk files in "C:\My Hardware\Cell Phone\APKs\" folder to device
+
+@pause
+
+@for /f "delims=|" %%f in ('dir /b "C:\My Hardware\Cell Phone\APKs\"*.apk') do @"C:\My Hardware\Cell Phone\ADB\adb.exe" install -r "C:\My Hardware\Cell Phone\APKs\%%f"
+
+@echo End of Batch File
+
+@pause
+
 https://is.gd/tvupdate
 https://is.gd/tvupdate504
 https://is.gd/tvupdate510
