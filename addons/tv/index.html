@@ -12,8 +12,8 @@
     margin: 0;
     display: flex;
     flex-direction: column;
-    align-items: center; /* center all content horizontally */
-    min-height: 100vh; /* full viewport height */
+    align-items: center;
+    min-height: 100vh;
     color: #eee;
   }
 
@@ -31,17 +31,14 @@
     align-items: center;
   }
 
-  /* Each row aligns button and info horizontally, centered vertically */
   .item-row {
     display: flex;
-    align-items: center; /* vertical alignment */
-    justify-content: flex-start; /* align to the left horizontally but with spacing */
+    align-items: center;
+    justify-content: flex-start;
     width: 100%;
     margin: 10px 0;
-    flex-wrap: 0; /* allow wrapping on small screens if needed */
   }
 
-  /* Style for the button/link */
   .file-link {
     display: inline-block;
     min-width: 200px;
@@ -56,53 +53,34 @@
     text-align: center;
     text-decoration: none;
     margin-right: 20px;
-    flex-shrink: 0;
+    cursor: pointer;
+    transition: 0.2s;
   }
   .file-link:hover {
     opacity: 0.9;
     transform: scale(1.02);
   }
 
-  /* Info container: display date and highlight, larger and bold for prominence */
   .info {
     display: flex;
     flex-direction: column;
     justify-content: center;
   }
-  /* Make date and highlight bigger and bold */
   .info span {
     font-size: 1.5rem;
     font-weight: bold;
   }
 
   /* Highlight styles */
-  .highlight.updated {
-    color: #104710;
-  }
-  .highlight.new {
-    color: #362852;
-  }
-  .highlight.old {
-    color: #590d0d;
-  }
+  .highlight.updated { color: #104710; }
+  .highlight.new { color: #362852; }
+  .highlight.old { color: #590d0d; }
 
-  /* Responsive adjustments */
   @media(max-width: 600px){
-    body {
-      padding: 10px;
-    }
-    h1 {
-      font-size: 1.8rem;
-    }
-    .file-link {
-      font-size: 1rem;
-      min-width: 150px;
-      height: 40px;
-      line-height: 40px;
-    }
-    .info span {
-      font-size: 1.2rem;
-    }
+    body { padding: 10px; }
+    h1 { font-size: 1.8rem; }
+    .file-link { font-size: 1rem; min-width: 150px; height: 40px; line-height: 40px; }
+    .info span { font-size: 1.2rem; }
   }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
@@ -110,9 +88,7 @@
 <body>
 
 <h1>TV</h1>
-<div id="instructions" style="text-align:center; margin-bottom:20px;">
-  Loading data from Excel...
-</div>
+<div id="instructions" style="text-align:center; margin-bottom:20px;">Loading data from Excel...</div>
 <div id="buttonsContainer"></div>
 
 <script>
@@ -131,9 +107,7 @@ window.onload = function() {
       // Remove loading message
       document.getElementById('instructions').style.display = 'none';
 
-      const container = document.getElementById('buttonsContainer');
-      container.innerHTML = '';
-
+      // For maximum compatibility, always open links in new tab
       jsonData.forEach(item => {
         let displayDate = item.Date;
         if (typeof displayDate === 'number') {
@@ -149,9 +123,9 @@ window.onload = function() {
         a.className = 'file-link';
         a.innerText = item.Name;
         a.href = item.URL;
-        a.target = '_blank';
-        a.download = item.Name;
+        a.target = '_blank'; // Always open in new tab for compatibility
 
+        // Set highlight background color
         const highlight = item.Highlight.toLowerCase();
         if (highlight === 'updated') {
           a.style.backgroundColor = '#104710';

@@ -19,16 +19,35 @@ adb exec-out screencap -p > screen-onn4kpro.png
 
 adb shell input keyevent KEYCODE_SOFT_SLEEP
 
+adb shell /data/local/tmp/.mousetoggle/nmouseg stop
+adb shell /data/local/tmp/.mousetoggle/nmouseg start &
+
 adb shell sh /sdcard/Android/data/moe.shizuku.privileged.api/start.sh
 
 adb shell sh /storage/emulated/0/Android/data/moe.shizuku.privileged.api/start.sh
+
+adb shell /data/app/~~LLvGPS-I4IZAQR_VwaO1bA==/moe.shizuku.privileged.api-NppPQK5g_2Z5rvmw-mE1IA==/lib/arm/libshizuku.so
 
 adb shell settings put secure enabled_accessibility_services flar2.homebutton
 
 adb shell settings put secure enabled_accessibility_services flar2.homebutton/flar2.homebutton.util
 
+adb shell settings get secure enabled_accessibility_services
+
 adb shell settings put secure enabled_accessibility_services
-com.spocky.projengmenu/com.spocky.projengmenu.services.ProjectivyAccessibilityService:com.carriez.flutter_hbb/com.carriez.flutter_hbb.InputService:dev.vodik7.tvquickactions/dev.vodik7.tvquickactions.KeyAccessibilityService
+zank.remote/zank.remote.AccessService:com.spocky.projengmenu/com.spocky.projengmenu.services.ProjectivyAccessibilityService:com.carriez.flutter_hbb/com.carriez.flutter_hbb.InputService:dev.vodik7.tvquickactions/dev.vodik7.tvquickactions.KeyAccessibilityService
+
+adb shell pm grant com.wolf.minilm android.permission.SYSTEM_ALERT_WINDOW
+
+adb shell pm grant com.wolf.minilm android.permission.READ_LOGS
+
+adb shell pm grant com.wolf.lms android.permission.WRITE_SECURE_SETTINGS
+
+adb shell pm grant dev.vodik7.tvquickactions android.permission.WRITE_SECURE_SETTINGS
+
+adb shell pm grant dev.vodik7.tvquickactions android.permission.SYSTEM_ALERT_WINDOW
+
+adb shell pm grant dev.vodik7.tvquickactions android.permission.PACKAGE_USAGE_STATS
 
 adb shell pm grant flar2.homebutton android.permission.WRITE_SECURE_SETTINGS
 
@@ -36,7 +55,7 @@ adb shell settings put secure screensaver_components dev.imranr.daydreamportal/d
 
 adb shell settings put secure screensaver_components com.wookee.deskclock/com.wookee.deskclock.Screensaver
 
-settings get secure screensaver_components
+adb shell settings get secure screensaver_components
 
 Screensaver timeout
 
