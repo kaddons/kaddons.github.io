@@ -51,6 +51,8 @@ adb shell pm grant dev.vodik7.tvquickactions android.permission.PACKAGE_USAGE_ST
 
 adb shell pm grant flar2.homebutton android.permission.WRITE_SECURE_SETTINGS
 
+adb shell pm grant com.softmedia.receiver.lite android.permission.SYSTEM_ALERT_WINDOW
+
 adb shell settings put secure screensaver_components dev.imranr.daydreamportal/dev.imranr.daydreamportal.MyDaydreamService
 
 adb shell settings put secure screensaver_components com.wookee.deskclock/com.wookee.deskclock.Screensaver
