@@ -29,15 +29,15 @@ body {
 #ampm { font-size: 0.4em; margin-left: 0.2em; }
 #date { font-size: clamp(1rem, 2.5vw, 1.3rem); margin-top: 1.5vh; text-align: center; }
 #main-content { display: flex; flex-direction: row; align-items: flex-start; justify-content: center; width: 100%; max-width: 1800px; padding: 20px; }
-#location-weather { display: flex; flex-direction: column; align-items: center; margin-top: 40px; margin-right: 30px; text-align: center; }
+#location-weather { display: flex; flex-direction: column; align-items: center; margin-top: 30px; margin-right: 30px; text-align: center; }
 #location { font-weight: bold; font-size: 1.3em; }
 #todays-weather { font-size: 1.3em; display: flex; flex-direction: column; align-items: center; }
-.weather-background { background: #202020; padding: 4px; border-radius: 6px; margin-top: 8px; display: flex; flex-direction: column; align-items: center; width: 80px; height: 85px; justify-content: center; }
+.weather-background { background: #202020; padding: 4px; border-radius: 6px; margin-top: 8px; display: flex; flex-direction: column; align-items: center; width: 100px; height: 105px; justify-content: center; }
 #weather-icon { margin-top: -15px; width: 90px; height: 90px; }
-#temperature { margin-top: 20px; font-size: 0.9em; color: dimgray; text-align: center; }
+#temperature { margin-top: 0px; font-size: 0.9em; color: dimgray; text-align: center; }
 #forecast-container { display: flex; flex-direction: column; align-items: center; width: 100%; margin-top: 10px; flex: 0; }
 .forecast-row { display: flex; flex-direction: row; justify-content: center; overflow-x: auto; padding: 10px 0; width: 100%; white-space: nowrap; }
-.forecast-item { min-width: 70px; background: #202020; color: dimgray; padding: 6px; border-radius: 6px; margin-right: 5px; text-align: center; font-size: 0.8em; display: inline-block; }
+.forecast-item { min-width: 80px; background: #202020; color: dimgray; padding: 6px; border-radius: 6px; margin-right: 5px; text-align: center; font-size: 0.8em; display: inline-block; }
 @media (min-width: 1920px) { body { justify-content: start; } }
 </style>
 </head>
@@ -61,10 +61,11 @@ body {
     <div id="location">Loading location...</div>
     <div id="todays-weather">
       <div>Current Weather</div>
-      <div class="weather-background" id="weather-background">
-        <div id="temperature"></div>
-        <img id="weather-icon" src="" alt="Weather Icon" />
-      </div>
+	<div class="weather-background" id="weather-background">
+  	<div id="temperature"></div>
+  	<img id="weather-icon" src="" alt="Weather Icon" />
+  	<div id="weather-name" style="margin-top:-20px; font-size:0.9em; color:dimgray;"></div>
+	</div>
     </div>
   </div>
   <div id="forecast-container">
@@ -233,6 +234,30 @@ const lat = 51.4066;
 const lon = -3.2834;
 document.getElementById('location').textContent='Barry, UK';
 
+function getWeatherName(code) {
+  const names = {
+    0: "Clear",
+    1: "Partly Cloudy",
+    2: "Cloudy",
+    3: "Overcast",
+    45: "Mist",
+    48: "Fog",
+    51: "Drizzle",
+    53: "Drizzle",
+    55: "Drizzle",
+    61: "Rain",
+    63: "Rain",
+    65: "Rain",
+    71: "Snow",
+    73: "Snow",
+    75: "Snow",
+    80: "Rain Showers",
+    81: "Rain Showers",
+    82: "Rain Showers"
+  };
+  return names[code] || "Unknown";
+}
+
 function getIconUrl(code, isDay){
   const icons={
     0:isDay?'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/clear-day.svg':'https://cdn.meteocons.com/3.0.0-next.10/svg/fill/clear-night.svg',
@@ -260,44 +285,74 @@ function getIconUrl(code, isDay){
 function setWeatherIcon(imgEl,url){ imgEl.style.display='block'; imgEl.src=url; imgEl.onerror=()=>{imgEl.style.display='none';}; }
 
 async function fetchTodayWeather(){
-  try{
+  try {
     const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`);
     const data = await resp.json();
     const code = data.current_weather.weathercode;
     const temp = Math.round(data.current_weather.temperature);
     const isDay = new Date().getHours()>=6 && new Date().getHours()<18;
     const iconUrl = getIconUrl(code,isDay);
+
     document.getElementById('temperature').textContent=`${temp}°C`;
+    document.getElementById('weather-name').textContent = getWeatherName(code);
     setWeatherIcon(document.getElementById('weather-icon'),iconUrl);
-  }catch(e){ console.error(e); }
+  } catch(e) {
+    console.error(e);
+  }
 }
 
-async function fetchHourlyForecast(){
-  try{
-    const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,weathercode&timezone=auto`);
+async function fetchHourlyForecast() {
+  try {
+    const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,weathercode&current_weather=true&timezone=auto`);
     const data = await resp.json();
     const now = new Date();
     const container = document.getElementById('hourly-forecast');
     container.innerHTML='';
-    let count=0;
-    for(let i=0;i<data.hourly.time.length;i++){
+
+    let hoursList = [];
+
+    // --- Add current weather first ---
+    hoursList.push({
+      time: new Date(),
+      temp: Math.round(data.current_weather.temperature),
+      code: data.current_weather.weathercode
+    });
+
+    // --- Add next 6 hours ---
+    for (let i=0; i<data.hourly.time.length && hoursList.length < 7; i++) {
       const dt = new Date(data.hourly.time[i]);
-      if(dt>=now && count<7){
-        const hour12=dt.getHours()%12||12;
-        const ampm = dt.getHours()>=12?'PM':'AM';
-        const temp=Math.round(data.hourly.temperature_2m[i]);
-        const code=data.hourly.weathercode[i];
-        const isDay = dt.getHours()>=6 && dt.getHours()<18;
-        const iconUrl = getIconUrl(code,isDay);
-        const div = document.createElement('div');
-        div.className='forecast-item';
-        div.innerHTML=`<div>${hour12} ${ampm}</div><div style="height:35px; display:flex; justify-content:center; align-items:center;"><img style="width:50px;height:50px;"></div><div>${temp}°C</div>`;
-        setWeatherIcon(div.querySelector('img'),iconUrl);
-        container.appendChild(div);
-        count++;
+      if (dt > now) {
+        hoursList.push({
+          time: dt,
+          temp: Math.round(data.hourly.temperature_2m[i]),
+          code: data.hourly.weathercode[i]
+        });
       }
     }
-  }catch(e){ console.error(e); }
+
+    // --- Render hourly forecast ---
+    hoursList.forEach(h => {
+      const dt = h.time;
+      const hour12 = dt.getHours()%12 || 12;
+      const ampm = dt.getHours() >= 12 ? 'PM' : 'AM';
+      const isDay = dt.getHours() >= 6 && dt.getHours() < 18;
+      const iconUrl = getIconUrl(h.code, isDay);
+      const div = document.createElement('div');
+      div.className='forecast-item';
+      div.innerHTML = `
+        <div>${hour12} ${ampm}</div>
+        <div style="height:35px; display:flex; justify-content:center; align-items:center;">
+          <img style="width:50px;height:50px;">
+        </div>
+        <div>${h.temp}°C</div>
+        <div style="font-size:0.7em; color:dimgray;">${getWeatherName(h.code)}</div>
+      `;
+      setWeatherIcon(div.querySelector('img'), iconUrl);
+      container.appendChild(div);
+    });
+  } catch(e){
+    console.error(e);
+  }
 }
 
 async function fetchWeeklyForecast(){
