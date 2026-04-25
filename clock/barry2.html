@@ -33,8 +33,8 @@ body {
 #location { font-weight: bold; font-size: 1.3em; }
 #todays-weather { font-size: 1.3em; display: flex; flex-direction: column; align-items: center; }
 .weather-background { background: #202020; padding: 4px; border-radius: 6px; margin-top: 8px; display: flex; flex-direction: column; align-items: center; width: 110px; height: 115px; justify-content: center; }
-#weather-icon { margin-top: -15px; width: 90px; height: 90px; }
-#temperature { margin-top: 0px; font-size: 0.9em; color: dimgray; text-align: center; }
+#weather-icon { margin-top: -10px; width: 90px; height: 90px; }
+#temperature { margin-top: 5px; font-size: 0.9em; color: dimgray; text-align: center; }
 #forecast-container { display: flex; flex-direction: column; align-items: center; width: 100%; margin-top: 0px; flex: 0; }
 .forecast-row { display: flex; flex-direction: row; justify-content: center; overflow-x: auto; padding: 10px 0; width: 100%; white-space: nowrap; }
 .forecast-item { min-width: 80px; background: #202020; color: dimgray; padding: 6px; border-radius: 6px; margin-right: 5px; text-align: center; font-size: 0.8em; display: inline-block; }
@@ -64,7 +64,7 @@ body {
 	<div class="weather-background" id="weather-background">
   	<div id="temperature"></div>
   	<img id="weather-icon" src="" alt="Weather Icon" />
-  	<div id="weather-name" style="margin-top:-20px; font-size:0.9em; color:dimgray;"></div>
+  	<div id="weather-name" style="margin-top: -10px; font-size:0.9em; color:dimgray;"></div>
 	</div>
     </div>
   </div>
@@ -342,7 +342,7 @@ async function fetchHourlyForecast() {
       div.innerHTML = `
         <div>${hour12} ${ampm}</div>
         <div style="height:35px; display:flex; justify-content:center; align-items:center;">
-          <img style="width:50px;height:50px;">
+          <img style="width:40px;height:40px;">
         </div>
         <div>${h.temp}°C</div>
         <div style="font-size:0.7em; color:dimgray;">${getWeatherName(h.code)}</div>
@@ -376,7 +376,7 @@ async function fetchWeeklyForecast(){
       div.innerHTML=`
         <div>${dayName}</div>
         <div style="height:35px; display:flex; justify-content:center; align-items:center;">
-          <img style="width:50px;height:50px;">
+          <img style="width:40px;height:40px;">
         </div>
         <div>${maxTemp}° / ${minTemp}°</div>
         <div style="font-size:0.7em; color:dimgray; margin-top:2px;">${weatherName}</div>
