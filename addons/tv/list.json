@@ -66,6 +66,12 @@
         "status": "Updated"
     },
     {
+        "name": "sflix-1.7.221.apk",
+        "url": "https://github.com/streamflix-reborn/streamflix/releases/download/v1.7.221/streamflix-v1.7.221-only-tv.apk",
+        "date": "29/05/2026",
+        "status": "New"
+    },
+    {
         "name": "rustdesk.arm7-1.4.6.apk",
         "url": "https://github.com/rustdesk/rustdesk/releases/download/1.4.6/rustdesk-1.4.6-armv7-signed.apk",
         "date": "11/05/2026",
