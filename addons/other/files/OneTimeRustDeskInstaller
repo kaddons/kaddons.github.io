@@ -1,0 +1,307 @@
+@echo off
+setlocal EnableExtensions
+color 0A
+chcp 65001 >nul
+title RustDesk Deployment Tool
+
+:: ==============================================
+:: INITIAL CONFIGURATION SETTINGS
+:: ==============================================
+set "ID_SERVER=rdseradmin.duckdns.org"
+set "RELAY_SERVER=rdseradmin.duckdns.org"
+set "KEY=66mgVwLQtSw0fzgLzzIz0t6J2nSNrlFvDaJhjx5uNQQ="
+
+set "DESKTOP=%USERPROFILE%\Desktop"
+set "CONFIG_FILE=%APPDATA%\RustDesk\config\RustDesk2.toml"
+
+echo.
+echo ==============================================
+echo        RUSTDESK DEPLOYMENT TOOL
+echo ==============================================
+echo          Automated Installer
+echo ==============================================
+
+echo ==============================================
+echo        START SCRIPT OR CANCEL SCRIPT
+echo ==============================================
+echo.
+
+:prompt
+set /P "ans=Do you want to run this script? Type YES or NO: "
+
+if /I "%ans%" EQU "YES" goto :start_script
+if /I "%ans%" EQU "NO" goto :exit_script
+
+echo.
+echo Invalid input. You must type the full word YES or NO.
+echo.
+goto :prompt
+
+:exit_script
+echo.
+echo Script cancelled by user.
+timeout /t 3 >nul
+exit
+
+:start_script
+echo.
+echo ==============================================
+echo        CHECKS RUSTDESK CONFIGURATION
+echo ==============================================
+echo.
+
+:: ==============================================
+:: CHECK FOR PLACEHOLDER VALUES
+:: ==============================================
+echo %ID_SERVER% | findstr /C:":rd.example.com/public_ip:port" >nul && goto missing
+echo %RELAY_SERVER% | findstr /C:":rd.example.com/public_ip:port" >nul && goto missing
+echo %KEY% | findstr /C:"YOUR_PUBLIC_KEY" >nul && goto missing
+
+:: ==============================================
+:: ALSO CHECK EMPTY OR SPACES
+:: ==============================================
+if "%ID_SERVER: =%"=="" goto missing
+if "%RELAY_SERVER: =%"=="" goto missing
+if "%KEY: =%"=="" goto missing
+
+goto continue
+
+:missing
+echo ERROR: Default placeholders detected or configuration details are missing.
+echo.
+echo [ADVICE] Please right-click this batch script file and choose 'Edit'.
+echo Change the placeholder values at the top of the file manually:
+echo   - ID_SERVER
+echo   - RELAY_SERVER
+echo   - KEY
+echo.
+echo Once updated, save the text file and run the script again.
+echo.
+echo Press any key to close this window...
+pause >nul
+exit
+
+:continue
+echo [1/7] Configuration OK. Continuing...
+echo.
+
+echo ==============================================
+echo        GET LATEST RUSTDESK
+echo ==============================================
+echo.
+
+echo [2/7] Fetching latest RustDesk...
+echo.
+
+for /f "delims=" %%A in ('powershell -NoProfile -Command "(Invoke-RestMethod 'https://api.github.com/repos/rustdesk/rustdesk/releases/latest').assets | Where-Object {$_.name -like '*x86_64.exe'} | Select-Object -First 1 -ExpandProperty browser_download_url"') do set "DOWNLOAD_URL=%%A"
+
+if not defined DOWNLOAD_URL (
+    echo ERROR: Failed to get download URL
+    pause
+    exit /b
+)
+
+for %%A in ("%DOWNLOAD_URL%") do set "FILE_NAME=%%~nxA"
+set "INSTALLER=%DESKTOP%\%FILE_NAME%"
+
+echo RUSTDESK URL: %DOWNLOAD_URL%
+echo.
+echo RUSTDESK VERSION: %FILE_NAME%
+echo.
+
+if exist "%INSTALLER%" (
+    echo [+] Latest RustDesk version is already on Desktop. Skipping download.
+    goto SKIP_DOWNLOAD
+)
+
+if exist "%DESKTOP%\rustdesk-*-x86_64.exe" (
+    echo [+] Removing older RustDesk version...
+    powershell -NoProfile -Command "Get-ChildItem '%DESKTOP%' -Filter 'rustdesk-*-x86_64.exe' | Remove-Item -Force"
+) else (
+    echo [+] No RustDesk on Desktop
+)
+echo.
+
+echo ==============================================
+echo        DOWNLOAD RUSTDESK
+echo ==============================================
+echo.
+
+echo [3/7] Downloading RustDesk...
+echo.
+
+powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+"$url='%DOWNLOAD_URL%'; ^
+$out='%INSTALLER%'; ^
+$req=[System.Net.HttpWebRequest]::Create($url); ^
+$req.UserAgent='Mozilla/5.0'; ^
+$response=$req.GetResponse(); ^
+$total=$response.ContentLength; ^
+$stream=$response.GetResponseStream(); ^
+$file=[System.IO.File]::OpenWrite($out); ^
+$buffer=New-Object byte[] 8192; ^
+$downloaded=0; ^
+$sw=[System.Diagnostics.Stopwatch]::StartNew(); ^
+$barWidth=20; ^
+while(($read=$stream.Read($buffer,0,$buffer.Length)) -gt 0){ ^
+    $file.Write($buffer,0,$read); ^
+    $downloaded+=$read; ^
+    $mb=[math]::Round($downloaded/1MB,2); ^
+    $tmb=[math]::Round($total/1MB,2); ^
+    $pct=[math]::Round(($downloaded/$total)*100,1); ^
+    $speed=[math]::Round(($downloaded/1MB)/$sw.Elapsed.TotalSeconds,2); ^
+    $eta=if($speed -gt 0){[math]::Round((($total-$downloaded)/1MB)/$speed,1)}else{0}; ^
+    $filled=[math]::Round(($pct/100)*$barWidth); ^
+    $empty=$barWidth-$filled; ^
+    $bar=('█'*$filled)+('░'*$empty); ^
+    Write-Host -NoNewline (\"`rDownloading [\" + $bar + \"] \" + $pct + \"% \" + $mb + \"MB / \" + $tmb + \"MB @ \" + $speed + \"MB/s ETA \" + $eta + \"s   \"); ^
+} ^
+Write-Host '' ; ^
+$file.Close(); ^
+$stream.Close()"
+
+echo.
+echo Download complete.
+
+:SKIP_DOWNLOAD
+echo.
+
+echo ==============================================
+echo        FIRST RUN OF RUSTDESK
+echo ==============================================
+echo.
+
+echo [4/7] Launching RustDesk...
+
+start "" "%INSTALLER%"
+timeout /t 15 /nobreak >nul
+echo.
+
+echo ==============================================
+echo        CLOSE RUSTDESK
+echo ==============================================
+echo.
+
+echo [5/7] Configuring RustDesk...
+
+powershell -NoProfile -Command "Get-Process rustdesk* -ErrorAction SilentlyContinue | ForEach-Object { $_.CloseMainWindow() | Out-Null }"
+
+timeout /t 3 /nobreak >nul
+
+taskkill /F /IM rustdesk.exe >nul 2>&1
+taskkill /F /IM rustdesk*.exe >nul 2>&1
+
+timeout /t 2 /nobreak >nul
+echo.
+
+echo ==============================================
+echo        ADD CONFIGURATION
+echo ==============================================
+echo.
+
+echo [6/7] Checking Configution...
+
+if not exist "%CONFIG_FILE%" (
+    echo ERROR: Config not found.
+    echo Run RustDesk once manually and re-run script.
+    pause
+    exit /b
+)
+echo.
+
+set "CONFIG_CHANGED=0"
+
+:: 1. Verify and update custom-rendezvous-server
+findstr /C:"custom-rendezvous-server = '%ID_SERVER%'" "%CONFIG_FILE%" >nul
+if %errorlevel% equ 0 (
+    echo    [MATCH]     Rendezvous Server is already up to date.
+) else (
+    findstr /C:"custom-rendezvous-server" "%CONFIG_FILE%" >nul
+    if %errorlevel% equ 0 (
+        echo    [UPDATE]    Updating Rendezvous Server to new values...
+        powershell -NoProfile -Command "$path='%CONFIG_FILE%'; (Get-Content $path) -replace 'custom-rendezvous-server\s*=.*', 'custom-rendezvous-server = ''%ID_SERVER%''' | Set-Content $path"
+    ) else (
+        echo    [NEW]       Adding Rendezvous Server configuration...
+        (echo.&&echo custom-rendezvous-server = '%ID_SERVER%')>>"%CONFIG_FILE%"
+    )
+    set "CONFIG_CHANGED=1"
+)
+
+:: 2. Verify and update relay-server
+findstr /C:"relay-server = '%RELAY_SERVER%'" "%CONFIG_FILE%" >nul
+if %errorlevel% equ 0 (
+    echo    [MATCH]     Relay Server is already up to date.
+) else (
+    findstr /C:"relay-server" "%CONFIG_FILE%" >nul
+    if %errorlevel% equ 0 (
+        echo    [UPDATE]    Updating Relay Server to new values...
+        powershell -NoProfile -Command "$path='%CONFIG_FILE%'; (Get-Content $path) -replace 'relay-server\s*=.*', 'relay-server = ''%RELAY_SERVER%''' | Set-Content $path"
+    ) else (
+        echo    [NEW]       Adding Relay Server configuration...
+        (echo relay-server = '%RELAY_SERVER%')>>"%CONFIG_FILE%"
+    )
+    set "CONFIG_CHANGED=1"
+)
+
+:: 3. Verify and update key
+findstr /C:"key = '%KEY%'" "%CONFIG_FILE%" >nul
+if %errorlevel% equ 0 (
+    echo    [MATCH]     Security Key is already up to date.
+) else (
+    findstr /C:"key" "%CONFIG_FILE%" >nul
+    if %errorlevel% equ 0 (
+        echo    [UPDATE]    Updating Security Key to new values...
+        powershell -NoProfile -Command "$path='%CONFIG_FILE%'; (Get-Content $path) -replace 'key\s*=.*', 'key = ''%KEY%''' | Set-Content $path"
+    ) else (
+        echo    [NEW]       Adding Security Key configuration...
+        (echo key = '%KEY%')>>"%CONFIG_FILE%"
+    )
+    set "CONFIG_CHANGED=1"
+)
+
+echo.
+if "%CONFIG_CHANGED%"=="1" (
+    echo  -^> SUCCESS: Settings updated successfully.
+) else (
+    echo  -^> INFO: Configuration unchanged. All entries match your script.
+)
+echo.
+
+echo ==============================================
+echo        RESTART RUSTDESK
+echo ==============================================
+echo.
+
+echo [7/7] Restarting RustDesk...
+
+start "" "%INSTALLER%"
+echo.
+
+echo ==============================================
+echo        INSTALLATION COMPLETE
+echo ==============================================
+echo.
+
+:delete_prompt
+echo Delete installer script? Type YES or NO:
+echo.
+echo.
+set /P "del_ans=> "
+
+if /I "%del_ans%" EQU "YES" goto :do_delete
+if /I "%del_ans%" EQU "NO" goto :end
+
+echo.
+echo Invalid input. You must type the full word YES or NO.
+echo.
+goto :delete_prompt
+
+:do_delete
+del "%~f0"
+
+:end
+echo.
+echo Done.
+pause
+
+
