@@ -90,37 +90,32 @@
     .info span { font-size: 1.2rem; }
   }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
 <h1>TV</h1>
-<div id="instructions" style="text-align:center; margin-bottom:20px;">Loading data from Excel...</div>
+<div id="instructions" style="text-align:center; margin-bottom:20px;">Loading data from JSON...</div>
 <div id="buttonsContainer"></div>
 
 <script>
 window.onload = function() {
-  fetch('tv.xlsx') // Replace with your actual filename
+  fetch('list.json') // Your JSON filename
     .then(response => {
       if (!response.ok) throw new Error('Network response was not ok');
-      return response.arrayBuffer();
+      return response.json();
     })
-    .then(data => {
-      const workbook = XLSX.read(data, { type: 'array' });
-      const firstSheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheetName];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
-      
+    .then(jsonData => {
       // Remove loading message
       document.getElementById('instructions').style.display = 'none';
 
-      // For maximum compatibility, always open links in new tab
       jsonData.forEach(item => {
-        let displayDate = item.Date;
-        if (typeof displayDate === 'number') {
-          const excelEpoch = new Date(1899, 11, 30);
-          displayDate = new Date(excelEpoch.getTime() + displayDate * 86400 * 1000);
-          displayDate = displayDate.toLocaleDateString();
+        let displayDate = item.date;
+
+        // Optional: parse date if needed
+        if (displayDate && displayDate.trim() !== "") {
+          // You can parse or format date here if necessary
+        } else {
+          displayDate = '';
         }
 
         const row = document.createElement('div');
@@ -128,24 +123,24 @@ window.onload = function() {
 
         const a = document.createElement('a');
         a.className = 'file-link';
-        a.innerText = item.Name;
-        a.href = item.URL;
-        a.target = '_blank'; // Always open in new tab for compatibility
+        a.innerText = item.name;
+        a.href = item.url;
+        a.target = '_blank'; // Always open in new tab
 
-        // Set highlight background color
-        const highlight = item.Highlight.toLowerCase();
-        if (highlight === 'updated') {
+        // Set background color based on status
+        const status = item.status.toLowerCase();
+        if (status === 'updated') {
           a.style.backgroundColor = '#104710';
-        } else if (highlight === 'new') {
+        } else if (status === 'new') {
           a.style.backgroundColor = '#362852';
-        } else if (highlight === 'old') {
+        } else if (status === 'old') {
           a.style.backgroundColor = '#590d0d';
         }
 
         const infoDiv = document.createElement('div');
         infoDiv.className = 'info';
         infoDiv.innerHTML = `
-          <span>${displayDate} <span class="highlight ${highlight}">${item.Highlight}</span></span>
+          <span>${displayDate} <span class="highlight ${status}">${item.status}</span></span>
         `;
 
         row.appendChild(a);
@@ -154,7 +149,7 @@ window.onload = function() {
       });
     })
     .catch(error => {
-      document.getElementById('instructions').textContent = 'Error loading Excel file.';
+      document.getElementById('instructions').textContent = 'Error loading JSON file.';
       console.error('Error:', error);
     });
 };
