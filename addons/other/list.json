@@ -1,11 +1,5 @@
 [
     {
-        "name": ".gitignore",
-        "url": "files/.gitignore",
-        "date": "30/05/2026",
-        "status": "New"
-    },
-    {
         "name": "rustdesk.x86.legacy-1.4.6.exe",
         "url": "https://github.com/rustdesk/rustdesk/releases/download/1.4.6/rustdesk-1.4.6-x86-sciter.exe",
         "date": "11/05/2026",
