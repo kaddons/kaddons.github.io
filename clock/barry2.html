@@ -239,7 +239,7 @@ function getWeatherName(code) {
     0: "Clear",
     1: "Partly Cloudy",
     2: "Cloudy",
-    3: "Overcast",
+    3: "Mostly Cloudy",
     45: "Mist",
     48: "Fog",
     51: "Drizzle",
@@ -284,8 +284,17 @@ function getIconUrl(code, isDay){
 
 function setWeatherIcon(imgEl,url){ imgEl.style.display='block'; imgEl.src=url; imgEl.onerror=()=>{imgEl.style.display='none';}; }
 
-async function fetchTodayWeather(){
+// Helper function to handle the safe random stagger delays
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function fetchTodayWeather(applyJitter = true){
   try {
+    // Staggers local devices so they don't block each other
+    if (applyJitter) {
+      const jitter = Math.floor(Math.random() * 5000);
+      await sleep(jitter);
+    }
+
     const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`);
     const data = await resp.json();
     const code = data.current_weather.weathercode;
@@ -301,8 +310,13 @@ async function fetchTodayWeather(){
   }
 }
 
-async function fetchHourlyForecast() {
+async function fetchHourlyForecast(applyJitter = true) {
   try {
+    if (applyJitter) {
+      const jitter = Math.floor(Math.random() * 5000);
+      await sleep(jitter);
+    }
+
     const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,weathercode&current_weather=true&timezone=auto`);
     const data = await resp.json();
     const now = new Date();
@@ -355,8 +369,13 @@ async function fetchHourlyForecast() {
   }
 }
 
-async function fetchWeeklyForecast(){
+async function fetchWeeklyForecast(applyJitter = true){
   try{
+    if (applyJitter) {
+      const jitter = Math.floor(Math.random() * 5000);
+      await sleep(jitter);
+    }
+
     const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto`);
     const data = await resp.json();
     const container = document.getElementById('weekly-forecast');
@@ -369,7 +388,7 @@ async function fetchWeeklyForecast(){
       const iconUrl = getIconUrl(code,true);
       const maxTemp=Math.round(data.daily.temperature_2m_max[i]);
       const minTemp=Math.round(data.daily.temperature_2m_min[i]);
-      const weatherName = getWeatherName(code); // <-- get weather description
+      const weatherName = getWeatherName(code);
 
       const div = document.createElement('div');
       div.className='forecast-item';
@@ -387,16 +406,43 @@ async function fetchWeeklyForecast(){
   }catch(e){ console.error(e); }
 }
 
-// Initial fetch
-fetchTodayWeather();
-fetchHourlyForecast();
-fetchWeeklyForecast();
+// --- INITIAL LOAD ---
+// Passing `false` skips the jitter so data loads immediately when the page opens
+fetchTodayWeather(false);
+fetchHourlyForecast(false);
+fetchWeeklyForecast(false);
 
-// Refresh intervals
-setInterval(fetchTodayWeather,5*60*1000);
-setInterval(fetchHourlyForecast,5*60*1000);
-setInterval(fetchWeeklyForecast,60*60*1000);
+
+// --- REFRESH INTERVALS ---
+// Standard recurring checks every 5 minutes and 1 hour
+setInterval(() => fetchTodayWeather(true), 5 * 60 * 1000);
+setInterval(() => fetchHourlyForecast(true), 5 * 60 * 1000);
+setInterval(() => fetchWeeklyForecast(true), 60 * 60 * 1000);
+
+
+// --- SHARP TOP-OF-THE-HOUR SYNCHRONIZER ---
+// Computes exactly when the clock strikes a new hour and forces an absolute interface sync
+function scheduleNextHourSync() {
+  const now = new Date();
+  
+  const timeUntilNextHour = 
+    ((60 - now.getMinutes()) * 60 * 1000) - 
+    (now.getSeconds() * 1000) - 
+    now.getMilliseconds();
+
+  setTimeout(async () => {
+    // True ensures they stagger across 5 seconds at the top of the hour
+    await fetchTodayWeather(true);
+    await fetchHourlyForecast(true);
+    await fetchWeeklyForecast(true);
+    
+    // Repeat for the next hour
+    scheduleNextHourSync();
+  }, timeUntilNextHour);
+}
+
+// Engage the engine
+scheduleNextHourSync();
 </script>
-
 </body>
 </html>
