@@ -384,7 +384,9 @@ async function fetchWeeklyForecast(applyJitter = true){
 
     for(let i=0;i<data.daily.time.length;i++){
       const dt = new Date(data.daily.time[i]);
-      const dayName = dt.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+      //--const dayNumeric = dt.getDate();
+      const dayName = dt.toLocaleDateString(undefined, { weekday: 'short', month: 'short' }) + ' ' + numeric + getOrdinal(numeric);
+      //--const dayName = dt.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
       const code = data.daily.weathercode[i];
       const iconUrl = getIconUrl(code,true);
       const maxTemp=Math.round(data.daily.temperature_2m_max[i]);
