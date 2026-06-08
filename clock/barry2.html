@@ -285,6 +285,16 @@ function getIconUrl(code, isDay){
 
 function setWeatherIcon(imgEl,url){ imgEl.style.display='block'; imgEl.src=url; imgEl.onerror=()=>{imgEl.style.display='none';}; }
 
+function getOrdinal(n) {
+  if (n > 3 && n < 21) return 'th';
+  switch (n % 10) {
+    case 1: return 'st';
+    case 2: return 'nd';
+    case 3: return 'rd';
+    default: return 'th';
+  }
+}
+
 // Helper function to handle the safe random stagger delays
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
