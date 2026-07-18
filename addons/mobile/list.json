@@ -1,20 +1,20 @@
 [
     {
-        "name": "sflix-1.7.226.apk",
-        "url": "https://github.com/streamflix-reborn/streamflix/releases/download/v1.7.226/streamflix-v1.7.226-only-mobile.apk",
-        "date": "06/07/2026",
-        "status": "Updated"
+        "name": "rustdesk-aarch64-1.4.9.apk",
+        "url": "files/rustdesk-aarch64-1.4.9.apk",
+        "date": "18/07/2026",
+        "status": "New"
     },
     {
-        "name": "rustdesk.arm7-1.4.8.apk",
-        "url": "https://github.com/rustdesk/rustdesk/releases/download/1.4.8/rustdesk-1.4.8-armv7-signed.apk",
-        "date": "06/07/2026",
-        "status": "Updated"
+        "name": "rustdesk-armv7-1.4.9.apk",
+        "url": "files/rustdesk-armv7-1.4.9.apk",
+        "date": "18/07/2026",
+        "status": "New"
     },
     {
-        "name": "rustdesk.arm64-1.4.8.apk",
-        "url": "https://github.com/rustdesk/rustdesk/releases/download/1.4.8/rustdesk-1.4.8-aarch64-signed.apk",
-        "date": "06/07/2026",
+        "name": "sflix-1.7.227.apk",
+        "url": "https://github.com/streamflix-reborn/streamflix/releases/download/v1.7.227/streamflix-v1.7.227-only-mobile.apk",
+        "date": "18/07/2026",
         "status": "Updated"
     },
     {
@@ -135,19 +135,19 @@
         "name": "onmo-1.1.7.apk",
         "url": "files/onmo-1.1.7.apk",
         "date": "14/07/2025",
-        "status": "New"
+        "status": "Old"
     },
     {
         "name": "onmosp.arm64-1.3.5.apk",
         "url": "files/onmosp.arm64-1.3.5.apk",
         "date": "14/07/2025",
-        "status": "Updated"
+        "status": "Old"
     },
     {
         "name": "onmosp.arm7-1.3.5.apk",
         "url": "files/onmosp.arm7-1.3.5.apk",
         "date": "14/07/2025",
-        "status": "New"
+        "status": "Old"
     },
     {
         "name": "hdomo.arm64-2.1.1.apk",

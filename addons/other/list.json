@@ -1,15 +1,15 @@
 [
     {
-        "name": "rustdesk.x86.legacy-1.4.8.exe",
-        "url": "https://github.com/rustdesk/rustdesk/releases/download/1.4.8/rustdesk-1.4.8-x86-sciter.exe",
-        "date": "06/07/2026",
-        "status": "Updated"
+        "name": "rustdesk-x86_64-1.4.9.exe",
+        "url": "files/rustdesk-x86_64-1.4.9.exe",
+        "date": "18/07/2026",
+        "status": "New"
     },
     {
-        "name": "rustdesk.x86.64-1.4.8.exe",
-        "url": "https://github.com/rustdesk/rustdesk/releases/download/1.4.8/rustdesk-1.4.8-x86_64.exe",
-        "date": "06/07/2026",
-        "status": "Updated"
+        "name": "TVWallpapers",
+        "url": "https://is.gd/tvwallpaper",
+        "date": "18/07/2026",
+        "status": "New"
     },
     {
         "name": "adb_tools-1.0.1.zip",
