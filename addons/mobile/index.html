@@ -127,6 +127,8 @@ window.onload = function() {
         a.href = item.url;
         a.target = '_blank'; // Always open in new tab
 
+	a.setAttribute('download', '');
+
         // Set background color based on status
         const status = item.status.toLowerCase();
         if (status === 'updated') {
