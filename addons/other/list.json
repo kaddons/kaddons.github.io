@@ -2,7 +2,13 @@
     {
         "name": "rustdesk-x86_64-1.4.9.exe",
         "url": "files/rustdesk-x86_64-1.4.9.exe",
-        "date": "18/07/2026",
+        "date": "19/07/2026",
+        "status": "New"
+    },
+    {
+        "name": "tv.conf",
+        "url": "files/tv.conf",
+        "date": "19/07/2026",
         "status": "New"
     },
     {

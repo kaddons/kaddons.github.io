@@ -2,13 +2,19 @@
     {
         "name": "rustdesk-aarch64-1.4.9.apk",
         "url": "files/rustdesk-aarch64-1.4.9.apk",
-        "date": "18/07/2026",
+        "date": "19/07/2026",
         "status": "New"
     },
     {
         "name": "rustdesk-armv7-1.4.9.apk",
         "url": "files/rustdesk-armv7-1.4.9.apk",
-        "date": "18/07/2026",
+        "date": "19/07/2026",
+        "status": "New"
+    },
+    {
+        "name": "wireguard-1.0.20260315.apk",
+        "url": "files/wireguard-1.0.20260315.apk",
+        "date": "19/07/2026",
         "status": "New"
     },
     {
