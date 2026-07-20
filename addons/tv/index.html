@@ -99,7 +99,6 @@
 
 <script>
 window.onload = function() {
-  // XMLHttpRequest ensures 100% compatibility with Android 6 + modern web browsers
   var xhr = new XMLHttpRequest();
   xhr.open('GET', 'list.json', true);
   
@@ -123,10 +122,10 @@ window.onload = function() {
           a.innerText = item.name;
           a.href = item.url;
           
-          // Intercept the click to force download text files and binaries directly
+          // Cross-compatible script to force download on static GitHub Pages
           a.onclick = function(e) {
-            e.preventDefault(); 
-            triggerForcedDownload(item.url, item.name);
+            e.preventDefault();
+            gitHubSafeDownload(item.url);
           };
 
           var status = item.status.toLowerCase();
@@ -148,60 +147,41 @@ window.onload = function() {
         });
       } catch (e) {
         document.getElementById('instructions').textContent = 'Error parsing JSON data.';
-        console.error('Parsing Error:', e);
       }
     } else {
       document.getElementById('instructions').textContent = 'Error loading JSON file.';
     }
   };
-
-  xhr.onerror = function() {
-    document.getElementById('instructions').textContent = 'Error loading JSON file.';
-  };
-
   xhr.send();
 };
 
-// Converts the file stream into an immediate file download
-function triggerForcedDownload(fileUrl, fileName) {
-  var dlXhr = new XMLHttpRequest();
-  dlXhr.open('GET', fileUrl, true);
-  dlXhr.responseType = 'blob'; // Forces the browser to treat the link as a download file
-
-  dlXhr.onload = function() {
-    if (dlXhr.status === 200) {
-      var blob = dlXhr.response;
-      
-      // Fallback for older WebView engines
-      if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-        window.navigator.msSaveOrOpenBlob(blob, fileName);
-        return;
-      }
-
-      // Universal download bridge for old Android and modern platforms
-      var blobUrl = window.URL.createObjectURL(blob);
-      var tempLink = document.createElement('a');
-      tempLink.style.display = 'none';
-      tempLink.href = blobUrl;
-      tempLink.download = fileName; // Enforces the filename and extensions like .txt
-      
-      document.body.appendChild(tempLink);
-      tempLink.click();
-      
-      setTimeout(function() {
-        document.body.removeChild(tempLink);
-        window.URL.revokeObjectURL(blobUrl);
-      }, 100);
-    } else {
-      window.location.href = fileUrl;
+// GitHub Pages-safe download dispatcher
+function gitHubSafeDownload(fileUrl) {
+  // If running inside the Downloader App (or old WebView)
+  var isDownloaderApp = navigator.userAgent.match(/Downloader|AFTV/i) || !window.URL;
+  
+  if (isDownloaderApp) {
+    // Hidden Iframe technique tells the Downloader app to fetch raw files natively
+    // without triggering a blob link crash or navigating away from the menu.
+    var dlFrame = document.getElementById('dlFrame');
+    if (!dlFrame) {
+      dlFrame = document.createElement('iframe');
+      dlFrame.id = 'dlFrame';
+      dlFrame.style.display = 'none';
+      document.body.appendChild(dlFrame);
     }
-  };
-
-  dlXhr.onerror = function() {
-    window.location.href = fileUrl;
-  };
-
-  dlXhr.send();
+    dlFrame.src = fileUrl;
+  } else {
+    // For modern browsers (Chrome/Safari), use standard clean fallback download anchors
+    var modernLink = document.createElement('a');
+    modernLink.href = fileUrl;
+    // extracts filename from url strings
+    var fileName = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
+    modernLink.setAttribute('download', fileName);
+    document.body.appendChild(modernLink);
+    modernLink.click();
+    document.body.removeChild(modernLink);
+  }
 }
 </script>
 
