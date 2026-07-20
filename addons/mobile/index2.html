@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mobile</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #121212;
+    padding: 20px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    color: #eee;
+  }
+
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 2rem;
+  }
+
+  #buttonsContainer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 800px;
+    align-items: center;
+  }
+
+  .item-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    margin: 10px 0;
+  }
+
+  .file-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 250px; /* fixed width for uniformity */
+    min-height: 35px; /* enough height for 1-2 lines */
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #4CAF50;
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    margin-right: 20px;
+    cursor: pointer;
+    transition: 0.2s;
+    word-break: break-word;
+    white-space: normal;
+    max-height: 3.6em; /* height for two lines with line-height 1.8em */
+    line-height: 1.8em;
+  }
+
+  .file-link:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+  }
+
+  .info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .info span {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+
+  /* Highlight styles */
+  .highlight.updated { color: #104710; }
+  .highlight.new { color: #362852; }
+  .highlight.old { color: #590d0d; }
+
+  @media(max-width: 600px){
+    body { padding: 10px; }
+    h1 { font-size: 1.8rem; }
+    .file-link { font-size: 1rem; min-width: 150px; height: auto; line-height: 1.2em; }
+    .info span { font-size: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Mobile</h1>
+<div id="instructions" style="text-align:center; margin-bottom:20px;">Loading data from JSON...</div>
+<div id="buttonsContainer"></div>
+
+<script>
+window.onload = function() {
+  fetch('list.json') // Your JSON filename
+    .then(response => {
+      if (!response.ok) throw new Error('Network response was not ok');
+      return response.json();
+    })
+    .then(jsonData => {
+      // Remove loading message
+      document.getElementById('instructions').style.display = 'none';
+
+      jsonData.forEach(item => {
+        let displayDate = item.date;
+
+        // Optional: parse date if needed
+        if (displayDate && displayDate.trim() !== "") {
+          // You can parse or format date here if necessary
+        } else {
+          displayDate = '';
+        }
+
+        const row = document.createElement('div');
+        row.className = 'item-row';
+
+        const a = document.createElement('a');
+        a.className = 'file-link';
+        a.innerText = item.name;
+        a.href = item.url;
+        a.target = '_blank'; // Always open in new tab
+
+	a.setAttribute('download', '');
+
+        // Set background color based on status
+        const status = item.status.toLowerCase();
+        if (status === 'updated') {
+          a.style.backgroundColor = '#104710';
+        } else if (status === 'new') {
+          a.style.backgroundColor = '#362852';
+        } else if (status === 'old') {
+          a.style.backgroundColor = '#590d0d';
+        }
+
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'info';
+        infoDiv.innerHTML = `
+          <span>${displayDate} <span class="highlight ${status}">${item.status}</span></span>
+        `;
+
+        row.appendChild(a);
+        row.appendChild(infoDiv);
+        document.getElementById('buttonsContainer').appendChild(row);
+      });
+    })
+    .catch(error => {
+      document.getElementById('instructions').textContent = 'Error loading JSON file.';
+      console.error('Error:', error);
+    });
+};
+</script>
+
+</body>
+</html>

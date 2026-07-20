@@ -99,62 +99,110 @@
 
 <script>
 window.onload = function() {
-  fetch('list.json') // Your JSON filename
-    .then(response => {
-      if (!response.ok) throw new Error('Network response was not ok');
-      return response.json();
-    })
-    .then(jsonData => {
-      // Remove loading message
-      document.getElementById('instructions').style.display = 'none';
+  // XMLHttpRequest ensures 100% compatibility with Android 6 + modern web browsers
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', 'list.json', true);
+  
+  xhr.onload = function() {
+    if (xhr.status >= 200 && xhr.status < 400) {
+      try {
+        var jsonData = JSON.parse(xhr.responseText);
+        document.getElementById('instructions').style.display = 'none';
 
-      jsonData.forEach(item => {
-        let displayDate = item.date;
+        jsonData.forEach(function(item) {
+          var displayDate = item.date;
+          if (!displayDate || displayDate.trim() === "") {
+            displayDate = '';
+          }
 
-        // Optional: parse date if needed
-        if (displayDate && displayDate.trim() !== "") {
-          // You can parse or format date here if necessary
-        } else {
-          displayDate = '';
-        }
+          var row = document.createElement('div');
+          row.className = 'item-row';
 
-        const row = document.createElement('div');
-        row.className = 'item-row';
+          var a = document.createElement('a');
+          a.className = 'file-link';
+          a.innerText = item.name;
+          a.href = item.url;
+          
+          // Intercept the click to force download text files and binaries directly
+          a.onclick = function(e) {
+            e.preventDefault(); 
+            triggerForcedDownload(item.url, item.name);
+          };
 
-        const a = document.createElement('a');
-        a.className = 'file-link';
-        a.innerText = item.name;
-        a.href = item.url;
-        a.target = '_blank'; // Always open in new tab
+          var status = item.status.toLowerCase();
+          if (status === 'updated') {
+            a.style.backgroundColor = '#104710';
+          } else if (status === 'new') {
+            a.style.backgroundColor = '#362852';
+          } else if (status === 'old') {
+            a.style.backgroundColor = '#590d0d';
+          }
 
-	a.setAttribute('download', '');
+          var infoDiv = document.createElement('div');
+          infoDiv.className = 'info';
+          infoDiv.innerHTML = '<span>' + displayDate + ' <span class="highlight ' + status + '">' + item.status + '</span></span>';
 
-        // Set background color based on status
-        const status = item.status.toLowerCase();
-        if (status === 'updated') {
-          a.style.backgroundColor = '#104710';
-        } else if (status === 'new') {
-          a.style.backgroundColor = '#362852';
-        } else if (status === 'old') {
-          a.style.backgroundColor = '#590d0d';
-        }
-
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'info';
-        infoDiv.innerHTML = `
-          <span>${displayDate} <span class="highlight ${status}">${item.status}</span></span>
-        `;
-
-        row.appendChild(a);
-        row.appendChild(infoDiv);
-        document.getElementById('buttonsContainer').appendChild(row);
-      });
-    })
-    .catch(error => {
+          row.appendChild(a);
+          row.appendChild(infoDiv);
+          document.getElementById('buttonsContainer').appendChild(row);
+        });
+      } catch (e) {
+        document.getElementById('instructions').textContent = 'Error parsing JSON data.';
+        console.error('Parsing Error:', e);
+      }
+    } else {
       document.getElementById('instructions').textContent = 'Error loading JSON file.';
-      console.error('Error:', error);
-    });
+    }
+  };
+
+  xhr.onerror = function() {
+    document.getElementById('instructions').textContent = 'Error loading JSON file.';
+  };
+
+  xhr.send();
 };
+
+// Converts the file stream into an immediate file download
+function triggerForcedDownload(fileUrl, fileName) {
+  var dlXhr = new XMLHttpRequest();
+  dlXhr.open('GET', fileUrl, true);
+  dlXhr.responseType = 'blob'; // Forces the browser to treat the link as a download file
+
+  dlXhr.onload = function() {
+    if (dlXhr.status === 200) {
+      var blob = dlXhr.response;
+      
+      // Fallback for older WebView engines
+      if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+        window.navigator.msSaveOrOpenBlob(blob, fileName);
+        return;
+      }
+
+      // Universal download bridge for old Android and modern platforms
+      var blobUrl = window.URL.createObjectURL(blob);
+      var tempLink = document.createElement('a');
+      tempLink.style.display = 'none';
+      tempLink.href = blobUrl;
+      tempLink.download = fileName; // Enforces the filename and extensions like .txt
+      
+      document.body.appendChild(tempLink);
+      tempLink.click();
+      
+      setTimeout(function() {
+        document.body.removeChild(tempLink);
+        window.URL.revokeObjectURL(blobUrl);
+      }, 100);
+    } else {
+      window.location.href = fileUrl;
+    }
+  };
+
+  dlXhr.onerror = function() {
+    window.location.href = fileUrl;
+  };
+
+  dlXhr.send();
+}
 </script>
 
 </body>
