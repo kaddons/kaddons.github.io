@@ -1,5 +1,11 @@
 [
     {
+        "name": "adb-enable-0.2.6.apk",
+        "url": "files/adb-enable-0.2.6.apk",
+        "date": "21/07/2026",
+        "status": "New"
+    },
+    {
         "name": "rustdesk-aarch64-1.4.9.apk",
         "url": "files/rustdesk-aarch64-1.4.9.apk",
         "date": "19/07/2026",
