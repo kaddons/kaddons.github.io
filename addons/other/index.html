@@ -158,10 +158,8 @@ window.onload = function() {
 // GitHub Pages-safe download dispatcher
 function gitHubSafeDownload(fileUrl) {
   var isDownloaderApp = navigator.userAgent.match(/Downloader|AFTV/i) || !window.URL;
-  var fileName = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
-  var fileExtension = fileName.split('.').pop().toLowerCase();
-
-  // Detect Android 6 or old WebView clients
+  
+  // Detect Android 6 or older
   var isOldAndroid = false;
   var ua = navigator.userAgent;
   if (ua.indexOf("Android") > -1) {
@@ -171,77 +169,42 @@ function gitHubSafeDownload(fileUrl) {
     }
   }
 
-  // ==========================================
-  // RULES SPECIFICALLY FOR APK FILES
-  // ==========================================
-  if (fileExtension === 'apk') {
-    if (isDownloaderApp) {
-      // 1. FOR DOWNLOADER APP: Use the pure iframe channel.
-      // This forces the Downloader App's internal Android hook to fetch the file natively.
-      // Once done, it immediately triggers the "Do you want to install..." panel.
-      var dlFrame = document.getElementById('dlFrame');
-      if (!dlFrame) {
-        dlFrame = document.createElement('iframe');
-        dlFrame.id = 'dlFrame';
-        dlFrame.style.display = 'none';
-        document.body.appendChild(dlFrame);
-      }
-      dlFrame.src = fileUrl;
-    } else {
-      // 2. FOR NORMAL BROWSERS: Trigger a clean, direct location dispatch.
-      // This commands Chrome/Safari/Firefox to just download the APK silently 
-      // directly into the user's storage without trying to open or interpret it.
-      var modernLink = document.createElement('a');
-      modernLink.href = fileUrl;
-      modernLink.setAttribute('download', fileName);
-      document.body.appendChild(modernLink);
-      modernLink.click();
-      document.body.removeChild(modernLink);
+  // Extract just the filename (e.g., "file.conf")
+  var fileName = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
+
+  if (isOldAndroid) {
+    // Convert your standard http/https link into an Android System Intent
+    // This bypasses the browser view and forces a clean background system download
+    var rawUrl = fileUrl.replace(/^https?:\/\//, '');
+    var scheme = fileUrl.startsWith('https') ? 'https' : 'http';
+    
+    var intentUrl = 'intent://' + rawUrl + 
+                    '#Intent;scheme=' + scheme + 
+                    ';type=application/octet-stream' + 
+                    ';S.browser_fallback_url=' + encodeURIComponent(fileUrl) + 
+                    ';end';
+    
+    window.location.href = intentUrl;
+
+  } else if (isDownloaderApp) {
+    // Fallback for Downloader/AFTV apps
+    var dlFrame = document.getElementById('dlFrame');
+    if (!dlFrame) {
+      dlFrame = document.createElement('iframe');
+      dlFrame.id = 'dlFrame';
+      dlFrame.style.display = 'none';
+      document.body.appendChild(dlFrame);
     }
-    return; // Core APK execution stops here cleanly.
+    dlFrame.src = fileUrl;
+  } else {
+    // For modern devices
+    var modernLink = document.createElement('a');
+    modernLink.href = fileUrl;
+    modernLink.setAttribute('download', fileName);
+    document.body.appendChild(modernLink);
+    modernLink.click();
+    document.body.removeChild(modernLink);
   }
-
-  // ==========================================
-  // RULES FOR OTHER FILES (.CONF, .EXE, NO-EXTENSION)
-  // ==========================================
-  fetch(fileUrl)
-    .then(function(response) { return response.blob(); })
-    .then(function(blob) {
-      var reader = new FileReader();
-      reader.onloadend = function() {
-        var base64data = reader.result;
-        var cleanBase64 = base64data.split(',');
-        var dataUrl = 'data:application/octet-stream;headers=Content-Disposition%3Bfilename%3D' + encodeURIComponent(fileName) + ';base64,' + cleanBase64;
-
-        if (isDownloaderApp || isOldAndroid) {
-          var dlFrame = document.getElementById('dlFrame');
-          if (!dlFrame) {
-            dlFrame = document.createElement('iframe');
-            dlFrame.id = 'dlFrame';
-            dlFrame.style.display = 'none';
-            document.body.appendChild(dlFrame);
-          }
-          dlFrame.src = dataUrl;
-        } else {
-          var modernLink = document.createElement('a');
-          modernLink.href = dataUrl;
-          modernLink.setAttribute('download', fileName);
-          document.body.appendChild(modernLink);
-          modernLink.click();
-          document.body.removeChild(modernLink);
-        }
-      };
-      reader.readAsDataURL(blob);
-    })
-    .catch(function(error) {
-      // Fallback redirect map if network requests hit security limits
-      var fallbackLink = document.createElement('a');
-      fallbackLink.href = fileUrl;
-      fallbackLink.setAttribute('download', fileName);
-      document.body.appendChild(fallbackLink);
-      fallbackLink.click();
-      document.body.removeChild(fallbackLink);
-    });
 }
 </script>
 
