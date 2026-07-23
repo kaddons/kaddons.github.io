@@ -6,14 +6,14 @@
         "status": "Updated"
     },
     {
-        "name": "rustdesk-x86_64-1.4.9.exe",
-        "url": "files/rustdesk-x86_64-1.4.9.exe",
+        "name": "remote.conf",
+        "url": "files/remote.conf",
         "date": "19/07/2026",
         "status": "New"
     },
     {
-        "name": "tv.conf",
-        "url": "files/tv.conf",
+        "name": "rustdesk-x86_64-1.4.9.exe",
+        "url": "files/rustdesk-x86_64-1.4.9.exe",
         "date": "19/07/2026",
         "status": "New"
     },

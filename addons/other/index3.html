@@ -157,37 +157,12 @@ window.onload = function() {
 
 // GitHub Pages-safe download dispatcher
 function gitHubSafeDownload(fileUrl) {
+  // If running inside the Downloader App (or old WebView)
   var isDownloaderApp = navigator.userAgent.match(/Downloader|AFTV/i) || !window.URL;
   
-  // Detect Android 6 or older
-  var isOldAndroid = false;
-  var ua = navigator.userAgent;
-  if (ua.indexOf("Android") > -1) {
-    var androidVersion = parseFloat(ua.slice(ua.indexOf("Android") + 8));
-    if (androidVersion <= 6.0) {
-      isOldAndroid = true;
-    }
-  }
-
-  // Extract just the filename (e.g., "file.conf")
-  var fileName = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
-
-  if (isOldAndroid) {
-    // Convert your standard http/https link into an Android System Intent
-    // This bypasses the browser view and forces a clean background system download
-    var rawUrl = fileUrl.replace(/^https?:\/\//, '');
-    var scheme = fileUrl.startsWith('https') ? 'https' : 'http';
-    
-    var intentUrl = 'intent://' + rawUrl + 
-                    '#Intent;scheme=' + scheme + 
-                    ';type=application/octet-stream' + 
-                    ';S.browser_fallback_url=' + encodeURIComponent(fileUrl) + 
-                    ';end';
-    
-    window.location.href = intentUrl;
-
-  } else if (isDownloaderApp) {
-    // Fallback for Downloader/AFTV apps
+  if (isDownloaderApp) {
+    // Hidden Iframe technique tells the Downloader app to fetch raw files natively
+    // without triggering a blob link crash or navigating away from the menu.
     var dlFrame = document.getElementById('dlFrame');
     if (!dlFrame) {
       dlFrame = document.createElement('iframe');
@@ -197,9 +172,11 @@ function gitHubSafeDownload(fileUrl) {
     }
     dlFrame.src = fileUrl;
   } else {
-    // For modern devices
+    // For modern browsers (Chrome/Safari), use standard clean fallback download anchors
     var modernLink = document.createElement('a');
     modernLink.href = fileUrl;
+    // extracts filename from url strings
+    var fileName = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
     modernLink.setAttribute('download', fileName);
     document.body.appendChild(modernLink);
     modernLink.click();
