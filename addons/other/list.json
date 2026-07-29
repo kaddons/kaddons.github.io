@@ -1,7 +1,7 @@
 [
     {
-        "name": "remoteqrvpn.conf",
-        "url": "files/remoteqrvpn.conf",
+        "name": "remote.conf",
+        "url": "files/remote.conf",
         "date": "29/07/2026",
         "status": "New"
     },
@@ -10,12 +10,6 @@
         "url": "files/adbcmd.txt",
         "date": "21/07/2026",
         "status": "Updated"
-    },
-    {
-        "name": "remote.conf",
-        "url": "files/remote.conf",
-        "date": "19/07/2026",
-        "status": "New"
     },
     {
         "name": "rustdesk-x86_64-1.4.9.exe",
