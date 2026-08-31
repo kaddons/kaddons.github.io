@@ -99,7 +99,7 @@
         "name": "kodi.arm7-2.1.3.apk",
         "url": "https://mirrors.kodi.tv/releases/android/arm/kodi-21.3-Omega-armeabi-v7a.apk",
         "date": "13/12/2025",
-        "status": "New"
+        "status": "Updated"
     },
     {
         "name": "shizuku-13.6.0.apk",
@@ -141,61 +141,61 @@
         "name": "adblang-0.80.apk",
         "url": "files/adblang-0.80.apk",
         "date": "29/08/2025",
-        "status": "New"
+        "status": "Old"
     },
     {
         "name": "as-4.0.apk",
         "url": "files/as-4.0.apk",
         "date": "29/08/2025",
-        "status": "New"
+        "status": "Old"
     },
     {
         "name": "clock-1.3.4.apk",
         "url": "files/clock-1.3.4.apk",
         "date": "29/08/2025",
-        "status": "New"
+        "status": "Old"
     },
     {
         "name": "launchmand-1.0.4.apk",
         "url": "files/launchmand-1.0.4.apk",
         "date": "29/08/2025",
-        "status": "New"
+        "status": "Old"
     },
     {
         "name": "launchmult-1.0.8.apk",
         "url": "files/launchmult-1.0.8.apk",
         "date": "29/08/2025",
-        "status": "New"
+        "status": "Old"
     },
     {
         "name": "orient-1.1.4.apk",
         "url": "files/orient-1.1.4.apk",
         "date": "29/08/2025",
-        "status": "New"
+        "status": "Old"
     },
     {
         "name": "permission-1.0.3.apk",
         "url": "files/permission-1.0.3.apk",
         "date": "29/08/2025",
-        "status": "New"
+        "status": "Old"
     },
     {
         "name": "speed-1.21.11.10.apk",
         "url": "files/speed-1.21.11.10.apk",
         "date": "29/08/2025",
-        "status": "New"
+        "status": "Old"
     },
     {
         "name": "tvbro-1.8.6.apk",
         "url": "files/tvbro-1.8.6.apk",
         "date": "29/08/2025",
-        "status": "New"
+        "status": "Old"
     },
     {
         "name": "screentimeout-1.4.3.apk",
         "url": "files/screentimeout-1.4.3.apk",
         "date": "07/08/2025",
-        "status": "New"
+        "status": "Old"
     },
     {
         "name": "daydream-1.0.0.apk",

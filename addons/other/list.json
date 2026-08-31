@@ -1,8 +1,8 @@
 [
     {
-        "name": "remote.conf",
-        "url": "files/remote.conf",
-        "date": "29/07/2026",
+        "name": "remote.zip",
+        "url": "files/remote.zip",
+        "date": "31/08/2026",
         "status": "New"
     },
     {
@@ -93,43 +93,43 @@
         "name": "adbtools.zip",
         "url": "files/adbtools.zip",
         "date": "29/08/2025",
-        "status": "New"
+        "status": "Old"
     },
     {
         "name": "screen.txt",
         "url": "files/screen.txt",
         "date": "29/08/2025",
-        "status": "New"
+        "status": "Old"
     },
     {
         "name": "solidzip.zip",
         "url": "files/solidzip.zip",
         "date": "29/08/2025",
-        "status": "New"
+        "status": "Old"
     },
     {
         "name": "solidzip4k.zip",
         "url": "files/solidzip4k.zip",
         "date": "29/08/2025",
-        "status": "New"
+        "status": "Old"
     },
     {
         "name": "tvupdate.tmb",
         "url": "files/tvupdate.tmb",
         "date": "29/08/2025",
-        "status": "New"
+        "status": "Old"
     },
     {
         "name": "projectivy-20250731-SonyTV.plbackup",
         "url": "files/projectivy-20250731-SonyTV.plbackup",
         "date": "31/07/2025",
-        "status": "New"
+        "status": "Old"
     },
     {
         "name": "tvQA-20250731-SonyTV.zip",
         "url": "files/tvQA-20250731-SonyTV.zip",
         "date": "31/07/2025",
-        "status": "New"
+        "status": "Old"
     },
     {
         "name": "wp1920746-wallpaper.jpg",
