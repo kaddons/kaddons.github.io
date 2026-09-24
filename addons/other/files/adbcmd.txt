@@ -7,6 +7,12 @@ https://github.com/Genymobile/scrcpy/blob/master/doc/
 
 https://highon.coffee/blog/adb-command-cheat-sheet/
 
+adb shell ime enable org.liskovsoft.androidtv.rukeyboard/com.liskovsoft.leankeyboard.ime.LeanbackImeService
+
+adb shell ime set org.liskovsoft.androidtv.rukeyboard/com.liskovsoft.leankeyboard.ime.LeanbackImeService
+
+adb shell settings get secure default_input_method
+
 adb shell settings put global adb_wifi_enabled 1 #Enable Wirless Debugging on boot#
 
 adb shell settings put system time_12_24 12
@@ -18,8 +24,25 @@ adb shell pm list packages -f <All>
 adb shell pm list packages -3 <User>
 
 adb shell pm list packages | grep stims
-adb shell appops set acidburn.stims android:get_usage_stats allow
 adb shell am force-stop acidburn.stims
+adb shell dumpsys deviceidle whitelist +acidburn.stims
+
+adb shell "dumpsys deviceidle whitelist +acidburn.stims; appops set acidburn.stims android:get_usage_stats allow; appops set acidburn.stims android:system_alert_window allow; appops set acidburn.stims android:run_in_background allow"
+
+dumpsys deviceidle whitelist +acidburn.stims && appops set acidburn.stims android:get_usage_stats allow && appops set acidburn.stims android:system_alert_window allow && appops set acidburn.stims android:run_in_background allow
+
+adb shell appops get acidburn.stims android:get_usage_stats
+adb shell appops set acidburn.stims android:system_alert_window
+adb shell appops set acidburn.stims android:run_in_background
+
+adb shell appops set acidburn.stims android:get_usage_stats allow
+adb shell appops set acidburn.stims android:system_alert_window allow
+adb shell appops set acidburn.stims android:run_in_background allow
+
+adb shell appops set acidburn.stims GET_USAGE_STATS allow
+adb shell appops set acidburn.stims SYSTEM_ALERT_WINDOW allow
+adb shell cmd appops set acidburn.stims RUN_IN_BACKGROUND allow
+
 
 adb exec-out screencap -p > screen-onn4kpro.png
 
